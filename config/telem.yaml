@@ -1,0 +1,43 @@
+kaia_telemetry_node:
+  ros__parameters:
+
+    laser_scan:
+        buf_len: 561
+        # Radian
+        angle_min: 0.0
+        angle_max: 6.283185307179586476925286766559
+        range_min: 0.1
+        range_max: 12.0
+        topic_name_pub: "scan"
+        frame_id: "lds"
+
+    telemetry:
+        topic_name_sub: "telemetry"
+
+    tf:
+        frame_id: "world"
+        child_frame_id: "base_footprint"
+
+    joint_states:
+        topic_name_pub: "joint_states"
+
+    odometry:
+      frame_id: "odom"
+      child_frame_id: "base_footprint"
+      topic_name_pub: "odom"
+
+    wheels:
+      # Meters
+      separation: 0.160
+      radius: 0.033
+
+#    motors:
+#      profile_acceleration_constant: 214.577
+#      profile_acceleration: 0.0
+
+#    sensors:
+#      bumper_1: 0
+#      bumper_2: 0
+#      illumination: 0
+#      ir: 0
+#      sonar: 0

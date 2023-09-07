@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>kaia_loki_description</name>
+  <version>0.0.0</version>
+  <description>Kaia.ai Snoopy robot 3D model and configurations</description>
+
+  <maintainer email="iliao@remake.ai">Ilia O.</maintainer>
+  <license>Apache 2.0</license>
+  <url type="website">http://kaia.ai</url>
+  <url type="repository">https://github.com/kaiaai/kaia_descriptions</url>
+  <url type="bugtracker">https://github.com/kaiaai/kaia_descriptions/issues</url>
+  <author email="iliao@remake.ai">Ilia O.</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>urdf</depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+    <gazebo_ros gazebo_model_path="${prefix}/sdf"/>
+  </export>
+</package>

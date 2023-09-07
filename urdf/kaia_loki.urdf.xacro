@@ -1,0 +1,642 @@
+<?xml version="1.0" ?>
+<robot name="kaia_loki" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- https://classic.gazebosim.org/tutorials?tut=ros_gzplugins&cat=connect_ros -->
+  <!-- https://classic.gazebosim.org/tutorials?tut=ros_urdf&cat=connect_ros -->
+  <!-- https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/humble-devel/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf -->
+  <!-- https://github.com/ROBOTIS-GIT/turtlebot3/blob/humble-devel/turtlebot3_description/urdf/turtlebot3_waffle_pi.urdf -->
+
+  <!-- ****************** ROBOT DIMENSIONS ****************** -->
+  <!-- Units: meters, degrees, kg, N*m, m/s2 -->
+  <xacro:property name="wheel_diameter" value="0.067"/>
+  <xacro:property name="wheel_width" value="0.029"/>
+  <xacro:property name="caster_diameter" value="0.042"/>
+  <!-- Caster center to base edge -->
+  <xacro:property name="caster_inset" value="0.0405"/>
+  <xacro:property name="floor_clearance" value="0.018"/>
+  <xacro:property name="base_diameter" value="0.200"/>
+  <xacro:property name="wheel_base" value="0.131397"/>
+  <xacro:property name="lower_cylinder_height" value="0.119"/>
+  <xacro:property name="lower_to_upper_cylinders_gap" value="0.026"/>
+  <xacro:property name="laser_puck_to_upper_cylinder_gap" value="0.005"/>
+  <xacro:property name="laser_puck_diameter" value="0.0656"/>
+  <xacro:property name="upper_cylinder_height" value="0.013"/>
+  <xacro:property name="head_height" value="0.104"/>
+  <xacro:property name="tablet_width" value="0.1669"/>
+  <xacro:property name="tablet_height" value="0.0781"/>
+  <xacro:property name="tablet_thickness" value="0.009"/>
+  <!-- Zero - tablet faces straight forward -->
+  <xacro:property name="tablet_pitch_angle" value="20"/>
+  <!-- Upper cylinder's front to tablet bottom's center -->
+  <xacro:property name="tablet_inset" value="0.055"/>
+  <xacro:property name="color_camera_diameter" value="0.004"/>
+  <!-- Tablet edge to camera center -->
+  <xacro:property name="color_camera_inset" value="0.008"/>
+  <!-- Delta xyz from tablet center -->
+  <xacro:property name="imu_joint_dx" value="0"/>
+  <xacro:property name="imu_joint_dy" value="0"/>
+  <xacro:property name="imu_joint_dz" value="0"/>
+  <!-- imu_joint_rpy: [0.0, 0.0, 0.0] -->
+
+  <xacro:property name="motor_stall_torque" value="0.49"/>
+  <xacro:property name="max_wheel_acceleration" value="5"/>
+
+  <xacro:property name="lower_cylinder_mass" value="0.500"/>
+  <xacro:property name="caster_mass" value="0.020"/>
+  <xacro:property name="wheel_mass" value="0.050"/>
+  <xacro:property name="laser_puck_mass" value="0.200"/>
+  <xacro:property name="upper_cylinder_mass" value="0.100"/>
+  <xacro:property name="head_mass" value="0.200"/>
+  <xacro:property name="tablet_mass" value="0.200"/>
+  <!-- ****************** **************** ****************** -->
+
+  <xacro:property name="DEG2RAD" value="0.0174533"/>
+  <xacro:property name="color_camera_thickness" value="0.0001"/>
+  <xacro:property name="imu_xlen" value="0.001"/>
+  <xacro:property name="imu_ylen" value="0.002"/>
+  <xacro:property name="imu_zlen" value="0.004"/>
+
+  <material name="black">
+      <color rgba="0 0 0 1.0"/>
+  </material>
+
+  <material name="dark">
+    <color rgba="0.3 0.3 0.3 1.0"/>
+  </material>
+
+  <material name="light_black">
+    <color rgba="0.4 0.4 0.4 1.0"/>
+  </material>
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1.0"/>
+  </material>
+
+  <material name="green">
+    <color rgba="0 0.8 0 1.0"/>
+  </material>
+
+  <material name="grey">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+
+  <material name="orange">
+    <color rgba="1.0 0.4235 0.0392 1.0"/>
+  </material>
+
+  <material name="brown">
+    <color rgba="0.8706 0.8118 0.7647 1.0"/>
+  </material>
+
+  <material name="red">
+    <color rgba="0.8 0 0 1.0"/>
+  </material>
+
+  <material name="yellow">
+    <color rgba="0.8 0.8 0 1.0"/>
+  </material>
+
+  <material name="white">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+
+  <xacro:macro name="solid_box_inertia" params="m x y z">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/12}" ixy="0" ixz="0" iyy="${m*(x*x+z*z)/12}" iyz="0" izz="${m*(x*x+y*y)/12}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_cylinder_inertia" params="m r h">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <mass value="${m}"/>
+      <inertia ixx="${m*(3*r*r+h*h)/12}" ixy="0" ixz="0" iyy="${m*(3*r*r+h*h)/12}" iyz="0" izz="${m*r*r/2}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="hollow_cylinder_inertia" params="m ri ro h">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <mass value="${m}"/>
+      <inertia ixx="${m*(3*(ri*ri+ro*ro)+h*h)/12}" ixy="0" ixz="0" iyy="${m*(3*(ri*ri+ro*ro) + h*h)/12}" iyz="0" izz="${m*(ri*ri+ro*ro)/2}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="thin_cylindrical_shell_inertia" params="m r h">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <mass value="${m}"/>
+      <inertia ixx="${m*(6*r*r+h*h)/12}" ixy="0" ixz="0" iyy="${m*(6*r*r+h*h)/12}" iyz="0" izz="${m*r*r}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_sphere_inertia" params="m r">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${2*m*r*r/5}" ixy="0" ixz="0" iyy="${2*m*r*r/5}" iyz="0" izz="${2*m*r*r/5}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="thin_spherical_shell_inertia" params="m r">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${2*m*r*r/3}" ixy="0" ixz="0" iyy="${2*m*r*r/3}" iyz="0" izz="${2*m*r*r/3}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_hemisphere_inertia" params="m r">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${83*m*r*r/320}" ixy="0" ixz="0" iyy="${83*m*r*r/320}" iyz="0" izz="${2*m*r*r/5}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_ellipsoid_inertia" params="m x y z">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/5}" ixy="0" ixz="0" iyy="${m*(x*x+z*z)/5}" iyz="0" izz="${m*(x*x+y*y)/5}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_semi_ellipsoid_inertia" params="m x y z">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/10}" ixy="0" ixz="0" iyy="${m*(x*x+z*z)/10}" iyz="0" izz="${m*(x*x+y*y)/10}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ****************** **************** ****************** -->
+
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 ${floor_clearance}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 ${lower_cylinder_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${lower_cylinder_height}" radius="${base_diameter/2}"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${lower_cylinder_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${lower_cylinder_height}" radius="${base_diameter/2}"/>
+      </geometry>
+    </collision>
+
+    <xacro:solid_cylinder_inertia m="${lower_cylinder_mass}" r="${base_diameter/2}" h="${lower_cylinder_height}"/>
+  </link>
+
+
+  <joint name="caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_link"/>
+    <origin xyz="${base_diameter/2-caster_inset} 0 ${caster_diameter/2-floor_clearance}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="caster_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="${caster_diameter/2}"/>
+      </geometry>
+      <material name="yellow"/>
+    </visual>
+
+   <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="${caster_diameter/2}"/>
+      </geometry>
+    </collision>
+
+    <xacro:solid_sphere_inertia m="${caster_mass}" r="${caster_diameter/2}"/>
+  </link>
+
+
+  <joint name="wheel_left_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_left_link"/>
+    <origin xyz="0 ${wheel_base/2} ${wheel_diameter/2-floor_clearance}" rpy="-${pi/2} 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="wheel_left_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${wheel_width}" radius="${wheel_diameter/2}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${wheel_width}" radius="${wheel_diameter/2}"/>
+      </geometry>
+    </collision>
+
+    <xacro:solid_cylinder_inertia m="${wheel_mass}" r="${wheel_diameter/2}" h="${wheel_width}"/>
+  </link>
+
+  <joint name="wheel_right_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_right_link"/>
+    <origin xyz="0 ${-wheel_base/2} ${wheel_diameter/2-floor_clearance}" rpy="-${pi/2} 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="wheel_right_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${wheel_width}" radius="${wheel_diameter/2}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${wheel_width}" radius="${wheel_diameter/2}"/>
+      </geometry>
+    </collision>
+
+    <xacro:solid_cylinder_inertia m="${wheel_mass}" r="${wheel_diameter/2}" h="${wheel_width}"/>
+  </link>
+
+
+  <joint name="scan_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_scan"/>
+    <origin xyz="0 0 ${lower_cylinder_height + (lower_to_upper_cylinders_gap - laser_puck_to_upper_cylinder_gap)/2}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_scan">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${lower_to_upper_cylinders_gap - laser_puck_to_upper_cylinder_gap}" radius="${laser_puck_diameter/2}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${lower_to_upper_cylinders_gap - laser_puck_to_upper_cylinder_gap}" radius="${laser_puck_diameter/2}"/>
+      </geometry>
+    </collision>
+
+    <xacro:solid_cylinder_inertia m="${laser_puck_mass}" r="${laser_puck_diameter/2}" h="${lower_to_upper_cylinders_gap - laser_puck_to_upper_cylinder_gap}"/>
+  </link>
+
+
+  <joint name="base_upper_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_upper_link"/>
+    <origin xyz="0 0 ${lower_cylinder_height + lower_to_upper_cylinders_gap}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_upper_link">
+    <visual>
+      <origin xyz="0 0 ${upper_cylinder_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${upper_cylinder_height}" radius="${base_diameter/2}"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${upper_cylinder_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${upper_cylinder_height}" radius="${base_diameter/2}"/>
+      </geometry>
+    </collision>
+
+    <xacro:solid_cylinder_inertia m="${upper_cylinder_mass}" r="${base_diameter/2}" h="${upper_cylinder_height}"/>
+  </link>
+
+
+  <joint name="head_joint" type="fixed">
+    <parent link="base_upper_link"/>
+    <child link="head_link"/>
+    <origin xyz="0 0 ${upper_cylinder_height}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="head_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://kaia_loki_description/sdf/kaia_loki/mesh/head.stl" scale="${0.001*base_diameter} ${0.001*base_diameter} ${0.001*head_height*2}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${head_height/2}" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="${head_height}" radius="${base_diameter/2}"/>
+      </geometry>
+    </collision>
+
+    <xacro:solid_semi_ellipsoid_inertia m="${head_mass}" x="${base_diameter/2}" y="${base_diameter/2}" z="${head_height}"/>
+  </link>
+
+
+  <joint name="tablet_joint" type="fixed">
+    <parent link="head_link"/>
+    <child link="tablet_link"/>
+    <origin xyz="${base_diameter/2 - tablet_inset} 0 0" rpy="0 ${-tablet_pitch_angle*DEG2RAD} 0"/>
+  </joint>
+
+  <link name="tablet_link">
+    <visual>
+      <origin xyz="0 0 ${tablet_height/2}" rpy="${pi/2} 0 ${pi/2}"/>
+      <geometry>
+        <box size="${tablet_width} ${tablet_height} ${tablet_thickness}"/>
+      </geometry>
+      <material name="light_black"/>
+    </visual>
+
+   <collision>
+      <origin xyz="0 0 ${tablet_height/2}" rpy="${pi/2} 0 ${pi/2}"/>
+      <origin xyz="0 0 0.03905" rpy="${pi/2} 0 ${pi/2}"/>
+      <geometry>
+        <box size="${tablet_width} ${tablet_height} ${tablet_thickness}"/>
+      </geometry>
+    </collision>
+
+    <xacro:solid_box_inertia m="${tablet_mass}" x="${tablet_width}" y="${tablet_height}" z="${tablet_thickness}"/>
+  </link>
+
+  <joint name="color_camera_joint" type="fixed">
+    <parent link="tablet_link"/>
+    <child link="color_camera_link"/>
+    <origin xyz="${tablet_thickness/2-color_camera_thickness} ${color_camera_inset - tablet_width/2} ${tablet_height/2}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="color_camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+      <geometry>
+        <cylinder length="${color_camera_thickness}" radius="${color_camera_diameter/2}"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="tablet_link"/>
+    <child link="imu_link"/>
+    <origin xyz="${imu_joint_dx} ${imu_joint_dy} ${imu_joint_dz+tablet_height/2}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="imu_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${imu_xlen} ${imu_ylen} ${imu_zlen}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <gazebo reference="color_camera_link">
+    <sensor type="camera" name="color_camera">
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>30.0</update_rate>
+      <camera name="front_color_camera">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>720</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="color_camera_plugin" filename="libgazebo_ros_camera.so">
+        <!-- ros -->
+          <!-- remapping -->
+          <!-- namespace -->
+        <!-- /ros -->
+
+        <!-- camera_name>omit, defaults to sensor name</camera_name -->
+        <!-- frame_name>omit, defaults to link name</frameName -->
+
+        <!-- hack_baseline>0.07</hack_baseline -->
+      </plugin>
+    </sensor>
+  </gazebo>
+
+
+  <gazebo>
+    <plugin name="differential_drive_plugin" filename="libgazebo_ros_diff_drive.so">
+
+      <!-- /opt/ros/humble/share/gazebo_plugins/worlds/gazebo_ros_diff_drive_demo.world -->
+      <!-- https://github.com/ros-simulation/gazebo_ros_pkgs/blob/foxy/gazebo_plugins/src/gazebo_ros_diff_drive.cpp -->
+
+      <!-- ros -->
+        <!-- remapping -->
+        <!-- namespace -->
+      <!-- /ros -->
+
+      <update_rate>30</update_rate>
+
+      <left_joint>wheel_left_joint</left_joint>
+      <right_joint>wheel_right_joint</right_joint>
+
+      <wheel_separation>${wheel_base}</wheel_separation>
+      <wheel_diameter>${wheel_diameter}</wheel_diameter>
+
+      <max_wheel_torque>${motor_stall_torque}</max_wheel_torque>
+      <max_wheel_acceleration>${max_wheel_acceleration}</max_wheel_acceleration>
+
+      <command_topic>cmd_vel</command_topic>
+
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
+
+      <odometry_topic>odom</odometry_topic>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="joint_state_plugin" filename="libgazebo_ros_joint_state_publisher.so">
+      <!-- https://github.com/ros-simulation/gazebo_ros_pkgs/blob/foxy/gazebo_plugins/src/gazebo_ros_joint_state_publisher.cpp -->
+      <ros>
+        <!-- namespace -->
+        <remapping>~/out:=joint_states</remapping>
+      </ros>
+      <update_rate>30</update_rate>
+      <joint_name>wheel_left_joint</joint_name>
+      <joint_name>wheel_right_joint</joint_name>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="base_scan">
+    <sensor type="ray" name="laser_scan_sensor">
+      <!-- pose>0 0 0 0 0 0</pose -->
+      <visualize>true</visualize>
+      <always_on>true</always_on>
+      <update_rate>9</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>0</min_angle>
+            <max_angle>${2*pi}</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>12.0</max>
+          <resolution>0.02</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="laser_scan_plugin" filename="libgazebo_ros_ray_sensor.so">
+        <!-- https://github.com/ros-simulation/gazebo_ros_pkgs/blob/foxy/gazebo_plugins/src/gazebo_ros_ray_sensor.cpp -->
+        <ros>
+          <!-- namespace -->
+          <remapping>~/out:=scan</remapping>
+        </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>base_scan</frame_name>
+        <!-- frameName>base_scan</frameName -->
+        <!-- topicName>/scan</topicName -->
+      </plugin>
+    </sensor>
+  </gazebo>
+
+
+  <gazebo reference="imu_link">
+    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <!-- visualize>true</visualize -->
+
+      <imu>
+        <angular_velocity>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </z>
+        </linear_acceleration>
+      </imu>
+
+      <!-- https://github.com/ros-simulation/gazebo_ros_pkgs/blob/foxy/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp -->
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <ros>
+          <!-- namespace>/kaia_loki</namespace -->
+          <remapping>~/out:=imu</remapping>
+        </ros>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="wheel_left_link">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <!-- mu>100000.0</mu -->
+    <!-- mu2>100000.0</mu2 -->
+    <material>Gazebo/Blue</material>
+    <!-- fdir1>0 0 0</fdir1 -->
+    <!-- kp>1e+5</kp -->
+    <!-- kd>1</kd -->
+    <!-- min_depth>0.001</min_depth -->
+    <!-- max_vel>0.01</max_vel -->
+
+    <!-- Turtlebot3 SDF -->
+    <!-- slip1>0.0</slip1 -->
+    <!-- slip2>0.0</slip2 -->
+    <!-- soft_cfm>0</soft_cfm -->
+    <!-- soft_erp>0.2</soft_erp -->
+  </gazebo>
+
+  <gazebo reference="wheel_right_link">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="caster_link">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <gazebo reference="head_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <gazebo reference="base_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="base_upper_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+</robot>
