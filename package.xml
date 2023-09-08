@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>kaia_loki_description</name>
+  <name>kaiaai_loki</name>
   <version>0.0.0</version>
-  <description>Kaia.ai Snoopy robot 3D model and configurations</description>
+  <description>Maker's Pet Loki pet robot compatible with Kaia.ai software</description>
 
   <maintainer email="iliao@remake.ai">Ilia O.</maintainer>
   <license>Apache 2.0</license>
-  <url type="website">http://kaia.ai</url>
-  <url type="repository">https://github.com/kaiaai/kaia_descriptions</url>
-  <url type="bugtracker">https://github.com/kaiaai/kaia_descriptions/issues</url>
+  <url type="website">http://makerspet.com</url>
+  <url type="repository">https://github.com/makerspet/kaiaai_loki</url>
+  <url type="bugtracker">https://github.com/makerspet/kaiaai_loki/issues</url>
   <author email="iliao@remake.ai">Ilia O.</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
