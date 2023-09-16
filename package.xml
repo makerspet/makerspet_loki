@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>kaiaai_loki</name>
+  <name>makerspet_loki</name>
   <version>0.0.0</version>
-  <description>Maker's Pet Loki pet robot compatible with Kaia.ai software</description>
+  <description>Maker's Pet Loki pet robot compatible with Kaia.ai software platform</description>
 
   <maintainer email="iliao@remake.ai">Ilia O.</maintainer>
   <license>Apache 2.0</license>
   <url type="website">http://makerspet.com</url>
-  <url type="repository">https://github.com/makerspet/kaiaai_loki</url>
-  <url type="bugtracker">https://github.com/makerspet/kaiaai_loki/issues</url>
+  <url type="repository">https://github.com/makerspet/makerspet_loki</url>
+  <url type="bugtracker">https://github.com/makerspet/makerspet_loki/issues</url>
   <author email="iliao@remake.ai">Ilia O.</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
