@@ -1,4 +1,4 @@
-kaia_telemetry_node:
+kaiaai_telemetry_node:
   ros__parameters:
 
     laser_scan:

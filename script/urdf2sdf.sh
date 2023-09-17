@@ -11,5 +11,3 @@ sed_arg="s/_description\/sdf\/$2//g"
 sed -i $sed_arg $2.sdf
 rm $2.urdf
 mv $2.sdf ../sdf/$2/model.sdf
-
-
