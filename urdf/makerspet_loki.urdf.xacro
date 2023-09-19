@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<robot name="kaia_loki" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="makerspet_loki" xmlns:xacro="http://ros.org/wiki/xacro">
   <!-- https://classic.gazebosim.org/tutorials?tut=ros_gzplugins&cat=connect_ros -->
   <!-- https://classic.gazebosim.org/tutorials?tut=ros_urdf&cat=connect_ros -->
   <!-- https://github.com/ROBOTIS-GIT/turtlebot3_simulations/blob/humble-devel/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf -->
@@ -337,7 +337,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://kaia_loki_description/sdf/kaia_loki/mesh/head.stl" scale="${0.001*base_diameter} ${0.001*base_diameter} ${0.001*head_height*2}"/>
+        <mesh filename="package://makerspet_loki/sdf/makerspet_loki/mesh/head.stl" scale="${0.001*base_diameter} ${0.001*base_diameter} ${0.001*head_height*2}"/>
       </geometry>
       <material name="red"/>
     </visual>
@@ -590,7 +590,7 @@
       <!-- https://github.com/ros-simulation/gazebo_ros_pkgs/blob/foxy/gazebo_plugins/src/gazebo_ros_imu_sensor.cpp -->
       <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
         <ros>
-          <!-- namespace>/kaia_loki</namespace -->
+          <!-- namespace>/robot_instance_1</namespace -->
           <remapping>~/out:=imu</remapping>
         </ros>
       </plugin>
