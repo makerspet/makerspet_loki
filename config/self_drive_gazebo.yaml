@@ -13,7 +13,5 @@ self_drive_gazebo_node:
       topic_name_sub: "odom"
 
     check:
-      side_scan_angle: 30
-      forward_distance: 0.7
-      side_distance: 0.4
-      turn_away_angle: 30
+      angle: 30
+      distance: 0.6
