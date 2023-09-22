@@ -12,7 +12,7 @@ ros2 run kaiaai clone_robot_description.sh /ros_ws/src/awesome_droid
 - If needed, edit the robot model in `awesome_droid/urdf/awesome_droid.urdf`
 - Regenerate your simulation model and compile your `awesome_droid` description
 ```
-ros2 run kaiaai_gazebo urdf2sdf.sh /ros_ws/src/awesome_droid/urdf/ awesome_droid
+ros2 run kaiaai_gazebo urdf2sdf.sh /ros_ws/src/awesome_droid/urdf/awesome_droid.urdf.xacro
 cd /ros_ws
 colcon build --symlink-install --packages-select awesome_droid
 ```
@@ -50,7 +50,7 @@ ros2 launch kaiaai_bringup inspect_urdf.launch.py description:=awesome_droid mod
 ros2 launch kaiaai_bringup edit_urdf.launch.py description:=awesome_droid model:=my_model
 
 # Convert URDF robot model file into SDF Gazebo simulation model file
-ros2 run awesome_droid urdf2sdf.sh /ros_ws/src/awesome_droid/urdf/ awesome_droid
+ros2 run kaiaai_gazebo urdf2sdf.sh /ros_ws/src/awesome_droid/urdf/awesome_droid.urdf.xacro
 cd /ros_ws && colcon build --symlink-install --packages-select awesome_droid
 ```
 </details>
