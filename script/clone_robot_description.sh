@@ -79,16 +79,3 @@ sed -i $sed_arg_name model.config
 
 echo "Updating sdf/$clone_name/model.sdf"
 sed -i $sed_arg_name model.sdf
-
-echo
-echo "* TODO Finish cloning:"
-echo "  *  Edit package.xml  - update author, website, description, version, email"
-echo "  *  Edit README.md    - update description"
-echo "  *  Edit $clone_desc_name/sdf/$clone_name/model.config - update author, description, version, email"
-echo "* Mod the robot:"
-echo "  *  Edit robot config - $clone_desc_name/config/"
-echo "  *  Edit robot model  - $clone_desc_name/urdf/$clone_name.urdf, run urdf2sdf"
-echo "* Run"
-echo "    cd /ros_ws"
-echo "    colcon build --symlink-install --packages-select $clone_desc_name"
-echo "    . install/setup.bash"
