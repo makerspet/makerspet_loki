@@ -5,18 +5,16 @@
 ```
 ros2 run makerspet_loki clone_robot_description.sh /ros_ws/src/awesome_droid
 ```
-- Follow instructions in the script's output to complete the cloning process, including:
-  - Edit `awesome_droid/package.xml` to update the author, website, description, version, email
-  - Edit `awesome_droid/README.md` to update the description
-  - Edit `awesome_droid/sdf/awesome_droid/model.config` to update the author, description, version, email
-  - Edit the robot config files in `awesome_robot/config/`
-  - Edit the robot model in `awesome_droid/urdf/awesome_droid.urdf`
-- Generate your simulation model, compiler your `awesome_droid` description and launch it in a simulation:
+- Edit `awesome_droid/package.xml` to update the author, website, description, version, email
+- Edit `awesome_droid/README.md` to update the description
+- Edit `awesome_droid/sdf/awesome_droid/model.config` to update the author, description, version, email
+- If needed, edit the robot config files in `awesome_robot/config/`
+- If needed, edit the robot model in `awesome_droid/urdf/awesome_droid.urdf`
+- Regenerate your simulation model and compile your `awesome_droid` description
 ```
-ros2 run makerspet_loki urdf2sdf.sh /ros_ws/src/awesome_droid/urdf/ awesome_droid
+ros2 run kaiaai_gazebo urdf2sdf.sh /ros_ws/src/awesome_droid/urdf/ awesome_droid
 cd /ros_ws
 colcon build --symlink-install --packages-select awesome_droid
-ros2 launch kaiaai_gazebo world.launch.py description:=awesome_droid
 ```
 
 ## Command cheat sheet
