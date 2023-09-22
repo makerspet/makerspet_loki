@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Clone the robot description (where the script resides) into a new one
-#   ros2 run kaia_snoopy_description clone_robot_description.sh /ros_ws/src/kaia_fido_description
+#   ros2 run makerspet_loki clone_robot_description.sh /ros_ws/src/awesome_droid
 [[ -z "$1" ]] && { echo "Destination path missing" ; exit 1; }
+[[ -z "$2" ]] && { echo "Clone model prefix missing" ; exit 1; }
 [[ -d "$1" ]] && { echo "Destination path already exists" ; exit 1; }
 
 clone_path=$1
@@ -26,7 +27,8 @@ desc_name=${desc_name:-/}
 # echo $desc_name
 
 # Extract robot model name prefix
-robot_name=${desc_name%"_description"}
+# robot_name=${desc_name%"_description"}
+#robot_name=desc_name
 # echo $robot_name
 
 # echo $clone_path
@@ -34,7 +36,8 @@ robot_name=${desc_name%"_description"}
 clone_desc_name=${clone_path##*/}
 clone_desc_name=${clone_desc_name:-/}
 # echo $clone_desc_name
-clone_name=${clone_desc_name%"_description"}
+# clone_name=${clone_desc_name%"_description"}
+clone_name=${clone_desc_name}
 # echo $clone_name
 
 [[ "$clone_name" == "$clone_desc_name" ]] && { echo "Syntax: /path/cloned_description" ; exit 1; }
@@ -86,11 +89,6 @@ echo "* Mod the robot:"
 echo "  *  Edit robot config - $clone_desc_name/config/"
 echo "  *  Edit robot model  - $clone_desc_name/urdf/$clone_name.urdf, run urdf2sdf"
 echo "* Run"
-echo "    cd /ros_ws && colcon build --symlink-install --packages-select $clone_desc_name"
-
-#xacro $2.urdf.xacro > $2.urdf
-#gz sdf -p $2.urdf > $2.sdf
-#sed_arg="s/_description\/sdf\/$2//g"
-#sed -i $sed_arg $2.sdf
-#rm $2.urdf
-#mv $2.sdf ../sdf/$2/model.sdf
+echo "    cd /ros_ws"
+echo "    colcon build --symlink-install --packages-select $clone_desc_name"
+echo "    . install/setup.bash"
