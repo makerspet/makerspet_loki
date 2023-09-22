@@ -10,7 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(urdf REQUIRED)
 
 
-install(DIRECTORY rviz urdf sdf config map
+install(DIRECTORY rviz urdf sdf config map sdf/${PROJECT_NAME}/mesh
   DESTINATION share/${PROJECT_NAME}
 )
 
