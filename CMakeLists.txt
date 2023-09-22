@@ -15,7 +15,7 @@ install(DIRECTORY rviz urdf sdf config map
 )
 
 install(
-  PROGRAMS script/clone_robot_description.sh script/urdf2sdf.sh
+  PROGRAMS script/clone_robot_description.sh
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
