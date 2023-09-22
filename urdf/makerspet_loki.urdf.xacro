@@ -337,7 +337,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://makerspet_loki/sdf/makerspet_loki/mesh/head.stl" scale="${0.001*base_diameter} ${0.001*base_diameter} ${0.001*head_height*2}"/>
+        <mesh filename="package://makerspet_loki/mesh/head.stl" scale="${0.001*base_diameter} ${0.001*base_diameter} ${0.001*head_height*2}"/>
       </geometry>
       <material name="red"/>
     </visual>

@@ -143,7 +143,7 @@
         <geometry>
           <mesh>
             <scale>0.0002 0.0002 0.000208</scale>
-            <uri>model://makerspet_loki/sdf/makerspet_loki/mesh/head.stl</uri>
+            <uri>model://makerspet_loki/mesh/head.stl</uri>
           </mesh>
         </geometry>
         <material>
