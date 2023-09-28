@@ -2,5 +2,7 @@ teleop_keyboard_node:
   ros__parameters:
     max_lin_vel: 0.61
     max_ang_vel: 2.84
-    lin_vel_step_size: 0.01
-    ang_vel_step_size: 0.1
+    lin_vel_step: 0.01
+    ang_vel_step: 0.1
+    lin_vel_step_large: 0.1
+    ang_vel_step_large: 0.5
