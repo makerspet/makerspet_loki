@@ -14,7 +14,7 @@
   <xacro:property name="caster_inset" value="0.0405"/>
   <xacro:property name="floor_clearance" value="0.018"/>
   <xacro:property name="base_diameter" value="0.200"/>
-  <xacro:property name="wheel_base" value="0.131397"/>
+  <xacro:property name="wheel_base" value="0.162794"/>
   <xacro:property name="lower_cylinder_height" value="0.119"/>
   <xacro:property name="lower_to_upper_cylinders_gap" value="0.026"/>
   <xacro:property name="laser_puck_to_upper_cylinder_gap" value="0.005"/>
