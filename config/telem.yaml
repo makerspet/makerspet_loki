@@ -18,26 +18,13 @@ kaiaai_telemetry_node:
         frame_id: "world"
         child_frame_id: "base_footprint"
 
-    joint_states:
+    joints:
         topic_name_pub: "joint_states"
+        wheel:
+            right: "wheel_right_joint"
+            left: "wheel_left_joint"
 
     odometry:
       frame_id: "odom"
       child_frame_id: "base_footprint"
       topic_name_pub: "odom"
-
-    wheels:
-      # Meters
-      separation: 0.160
-      radius: 0.033
-
-#    motors:
-#      profile_acceleration_constant: 214.577
-#      profile_acceleration: 0.0
-
-#    sensors:
-#      bumper_1: 0
-#      bumper_2: 0
-#      illumination: 0
-#      ir: 0
-#      sonar: 0
