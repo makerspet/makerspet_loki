@@ -15,7 +15,7 @@ kaiaai_telemetry_node:
         topic_name_sub: "telemetry"
 
     tf:
-        frame_id: "world"
+        frame_id: "odom"
         child_frame_id: "base_footprint"
 
     joints:
