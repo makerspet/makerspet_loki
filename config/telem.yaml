@@ -9,7 +9,7 @@ kaiaai_telemetry_node:
         range_min: 0.1
         range_max: 12.0
         topic_name_pub: "scan"
-        frame_id: "lds"
+        frame_id: "base_scan"
 
     telemetry:
         topic_name_sub: "telemetry"
