@@ -1,4 +1,4 @@
-# Maker's Pet Loki pet robot
+# Maker's Pet Loki home robot
 
 A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) software [platform](https://github.com/kaiaai/).
 
