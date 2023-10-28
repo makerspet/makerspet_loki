@@ -25,7 +25,7 @@ A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) so
 - PC end user and developer [setup](https://github.com/kaiaai/docker)
 - KiCad [schematic, PCB](https://github.com/makerspet/makerspet_snoopy/tree/main/hardware/kicad)
 - Software setup, configuration [instructions](https://github.com/makerspet/makerspet_loki/tree/main/config)
-- Fusion 360 3D CAD [design files](https://github.com/makerspet/makerspet_snoopy/tree/main/hardware/fusion360)
+- Fusion 360 3D CAD [design files](https://github.com/makerspet/makerspet_loki/tree/main/hardware/fusion360)
 - ROS2 software mod [instructions](https://github.com/makerspet/makerspet_loki/tree/main/urdf)
 
 ## Open-source design
