@@ -16,7 +16,7 @@ A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) so
 - ESP32 micro-controller
 - Arduino firmware
 - room mapping using a 360-degree laser distance sensor (ROS2-based).
-- fully autonomous navigation (ROS2-based).
+- autonomous self-driving (ROS2-based).
 - code your character, skills - see [software](https://kaia.ai).
 
 ## Instructions
