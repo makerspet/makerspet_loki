@@ -27,4 +27,4 @@ A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) so
 - Fusion 360 design files [here](https://github.com/makerspet/makerspet_loki/hardware/fusion360)
 
 ## Open-source design
-Authored in Fusion 360. Printed using a Prusa MK3S.
+Authored in Fusion 360. Printed using a Prusa MK3.5S.
