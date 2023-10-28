@@ -4,6 +4,8 @@ A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) so
 
 3D print, build, run and mod your own home pet robot! Please learn more at [Maker's Pet](https://makerspet.com).
 
+[![Watch the assembly instructions video](https://img.youtube.com/vi/WPB2B1DPf_s/default.jpg)](https://youtu.be/WPB2B1DPf_s)
+
 ## Features
 - 3D-printable, 200mm round base.
 - ESP32 micro-controller.
