@@ -64,7 +64,7 @@ input[type=submit]:hover {
   background-color: #1282A2;
 }
 
-input[type=text], input[type=number], select {
+input[type=text], input[type=number], input[type=password], select {
   width: 50%;
   padding: 12px 20px;
   margin: 18px;

@@ -1,54 +1,11 @@
 // Scan publishes, WiFi AP works
 
-/*
-TODO check agent connection rclc_executor_spin_some() != RCL_RET_OK
-  call esp_wifi_disconnect() before reset/reboot
+//TODO detect micro-ros agent disconnect
+//TODO debug /odom NaN
+//TODO discover ROS2 PC automatically
+//  #define RMW_UXRCE_TRANSPORT_UDP
 
-https://randomnerdtutorials.com/esp32-wi-fi-manager-asyncwebserver/
-
-sudo apt install ros-humble-geometry2
-ros2 topic list
-ros2 topic pub /cmd_vel geometry_msgs/msg/Twist
-  "{linear: {x: 0.1, y: 0.0, z: 0.0},
-  angular: {x: 0.0, y: 0.0, z: 1.0}}" -1
-
-cmd_vel in ESP32 vs per-motor speed from PC ROS diff_controller
-  because ESP32 needs to know direction of movement to stop
-  if LDS detects an obstacle in that direction
-TODO debug /odom NaN
-TODO WiFi not getting IP on reconnect (same on laptop!)
-https://github.com/micro-ROS/micro_ros_arduino/blob/iron/src/micro_ros_arduino.h
-https://randomnerdtutorials.com/esp32-useful-wi-fi-functions-arduino/
-https://randomnerdtutorials.com/get-change-esp32-esp8266-mac-address-arduino/
-
-https://micro.ros.org/docs/tutorials/advanced/create_new_type/
-
-cd C:\Users\ilya\Documents\Arduino\libraries\micro_ros_arduino
-  \extras\library_generation\extra_packages\
-git clone https://github.com/iovsiann/kaia_msgs
-docker run -it --rm --name uros-arduino-lib
-  -v //c/Users/ilya/Documents/Arduino/libraries/micro_ros_arduino:/project
-  --env MICROROS_LIBRARY_FOLDER=extras
-  microros/micro_ros_static_library_builder:humble -p esp32
-
-docker run --name kaia-ros-dev-humble -it --rm
-   -p 8888:8888/udp -e DISPLAY=host.docker.internal:0.0
-  -e LIBGL_ALWAYS_INDIRECT=0 kaia-ros-dev:humble    # launch
-docker exec -it kaia-ros-dev-humble bash
-
-mkdir -p /ros_ws/src && cd /ros_ws/src
-git clone https://github.com/kaiaai/kaia_msgs
-git clone https://github.com/kaiaai/kaia_telem
-git clone https://github.com/kaiaai/kaia_launch
-cd /ros_ws
-colcon build
-. install/setup.bash
-ros2 run kaia_telem test_pub
-ros2 run kaia_telem telem
-*/
-//#define RMW_UXRCE_TRANSPORT_UDP
-
-#include "kaia-esp32.h"
+#include "loki-esp32.h"
 #include "util.h"
 #include <WiFi.h>
 #include <stdio.h>
@@ -61,7 +18,7 @@ ros2 run kaia_telem telem
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
-#include <kaia_msgs/msg/kaia_telemetry.h>
+#include <kaiaai_msgs/msg/kaiaai_telemetry.h>
 #include <geometry_msgs/msg/twist.h>
 #include <rcl_interfaces/msg/log.h>
 #include <rmw_microros/rmw_microros.h>
@@ -81,7 +38,7 @@ const float WHEEL_RADIUS = WHEEL_DIA / 2;
 rcl_publisher_t telem_pub;
 rcl_publisher_t log_pub;
 rcl_subscription_t twist_sub;
-kaia_msgs__msg__KaiaTelemetry telem_msg;
+kaiaai_msgs__msg__KaiaaiTelemetry telem_msg;
 geometry_msgs__msg__Twist twist_msg;
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -98,8 +55,8 @@ uint8_t lds_buf[LDS_BUF_LEN] = {0};
 
 unsigned long telem_prev_pub_time_us = 0;
 unsigned long ping_prev_pub_time_us = 0;
-unsigned long telem_pub_period_us = 50000;
-unsigned long ping_pub_period_us = 10000000;
+unsigned long telem_pub_period_us = UROS_TELEM_PUB_PERIOD_MS*1000;
+unsigned long ping_pub_period_us = UROS_PING_PUB_PERIOD_MS*1000;
 
 unsigned long ramp_duration_us = 0;
 unsigned long ramp_start_time_us = 0;
@@ -109,6 +66,11 @@ float ramp_target_rpm_right = 0;
 float ramp_target_rpm_left = 0;
 
 bool ramp_enabled = true;
+
+#ifdef SPIN_TELEM_STATS
+unsigned long stat_sum_spin_telem_period_us = 0;
+unsigned long stat_max_spin_telem_period_us = 0;
+#endif
 
 void twist_sub_callback(const void *msgin) {
   const geometry_msgs__msg__Twist * msg = (const geometry_msgs__msg__Twist *)msgin;
@@ -128,6 +90,8 @@ void twist_sub_callback(const void *msgin) {
 
   twistToWheelSpeeds(target_speed_lin_x, target_speed_ang_z,
     &twist_target_speed_right, &twist_target_speed_left);
+
+  twist_target_speed_left = -twist_target_speed_left;
 
   // Wheel speeds to RPM
   float twist_target_rpm_right = SPEED_TO_RPM(twist_target_speed_right);
@@ -166,10 +130,10 @@ void twist_sub_callback(const void *msgin) {
   }
 
   Serial.print("linear.x ");
-  Serial.print(msg->linear.x);
+  Serial.print(msg->linear.x, 3);
   Serial.print(", angular.z ");
-  Serial.print(msg->angular.z);
-  Serial.print("; RPM R ");
+  Serial.print(msg->angular.z, 3);
+  Serial.print("; target RPM R ");
   Serial.print(ramp_target_rpm_right);
   Serial.print(" L ");
   Serial.println(ramp_target_rpm_left);
@@ -180,8 +144,8 @@ void twist_sub_callback(const void *msgin) {
   }
 
   // Calculate change in speeds
-  ramp_start_rpm_right = drive.getCurrentRPM(MOTOR_RIGHT);
-  ramp_start_rpm_left = drive.getCurrentRPM(MOTOR_LEFT);
+  ramp_start_rpm_right = drive.getTargetRPM(MOTOR_RIGHT);
+  ramp_start_rpm_left = drive.getTargetRPM(MOTOR_LEFT);
   
   float ramp_start_speed_right = RPM_TO_SPEED(ramp_start_rpm_right);
   float ramp_start_speed_left = RPM_TO_SPEED(ramp_start_rpm_left);
@@ -244,6 +208,14 @@ void logInfo(char* msg) {
   Serial.println(msg);
 }
 
+void delaySpin(unsigned long msec) {
+  unsigned long time_msec = millis();
+  while(millis() - time_msec < msec) {
+    spinResetSettings();
+    yield();
+  }
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -254,20 +226,18 @@ void setup() {
 
   pinMode(YD_MOTOR_SCTP_PIN, INPUT);
   pinMode(YD_MOTOR_EN_PIN, OUTPUT);
-  enableMotor(false);
+  enableLdsMotor(false);
 
-  //initWiFi((char*)WIFI_SSID, (char*)WIFI_PASSWORD);
   if (!initWiFi(getSSID(), getPassw())) {
-    ObtainWiFiCreds();
+    digitalWrite(LED_PIN, HIGH);
+    ObtainWiFiCreds(spinResetSettings);
     return;
   }
 
-  set_microros_wifi_transports((char*)MICRO_ROS_AGENT_IP, MICRO_ROS_AGENT_PORT);
-//  set_microros_wifi_transports_mod(NULL, NULL, (char*)MICRO_ROS_AGENT_IP,
-//    MICRO_ROS_AGENT_PORT);
+  set_microros_wifi_transports(getDestIP().c_str(), getDestPort().toInt());
 
   delay(2000);
-
+  
   initRos();
   logMsgInfo((char*)"Micro-ROS initialized");
   
@@ -305,10 +275,17 @@ static inline void initRos() {
   RCCHECK(rmw_uros_options_set_client_key(UROS_CLIENT_KEY, rmw_options),
     ERR_UROS_INIT); // TODO multiple bots
 
-  Serial.println(F("Connecting to Micro-ROS agent ..."));
+  Serial.print(F("Connecting to Micro-ROS agent ... "));
   //RCCHECK(rclc_support_init(&support, 0, NULL, &allocator), ERR_UROS_AGENT_CONN);
-  RCCHECK(rclc_support_init_with_options(&support, 0, NULL,
-    &init_options, &allocator), ERR_UROS_AGENT_CONN);
+  //RCCHECK(rclc_support_init_with_options(&support, 0, NULL,
+  //  &init_options, &allocator), ERR_UROS_AGENT_CONN);
+  rcl_ret_t temp_rc = rclc_support_init_with_options(&support, 0, NULL,
+    &init_options, &allocator);
+  if (temp_rc != RCL_RET_OK) {
+    Serial.println("failed");
+    error_loop(ERR_UROS_AGENT_CONN);
+  }
+  Serial.println("success");
 
   syncRosTime();
   printCurrentTime();
@@ -322,7 +299,7 @@ static inline void initRos() {
     UROS_CMD_VEL_TOPIC_NAME), ERR_UROS_PUBSUB);
 
   RCCHECK(rclc_publisher_init_best_effort(&telem_pub, &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(kaia_msgs, msg, KaiaTelemetry),
+    ROSIDL_GET_MSG_TYPE_SUPPORT(kaiaai_msgs, msg, KaiaaiTelemetry),
     UROS_TELEM_TOPIC_NAME), ERR_UROS_PUBSUB);
 
   RCCHECK(rclc_publisher_init_default(&log_pub, &node,
@@ -337,7 +314,6 @@ static inline void initRos() {
   resetTelemMsg();
 }
 
-//static inline bool initWiFi(char* ssid, char* passw) {
 static inline bool initWiFi(String ssid, String passw) {
 
   if(ssid.length() == 0){
@@ -354,7 +330,6 @@ static inline bool initWiFi(String ssid, String passw) {
   //  return false;
   //}
 
-  //WiFi.begin(ssid.c_str(), pass.c_str());
   WiFi.begin(ssid, passw);
 
   Serial.print("Connecting to WiFi ");
@@ -364,7 +339,7 @@ static inline bool initWiFi(String ssid, String passw) {
   unsigned long startMillis = millis();
 
   while (WiFi.status() != WL_CONNECTED) {
-    if (millis() - startMillis >= WIFI_CONN_TIMEOUT_MS) {
+    if (millis() - startMillis >= WIFI_CONN_TIMEOUT_SEC*1000) {
       Serial.println(" timed out");
       return false;
     }
@@ -374,6 +349,7 @@ static inline bool initWiFi(String ssid, String passw) {
     digitalWrite(LED_PIN, LOW);
     Serial.print('.'); // Don't use F('.'), it crashes code!!
     delay(250);
+    spinResetSettings();
   }
 
   digitalWrite(LED_PIN, LOW);
@@ -383,7 +359,6 @@ static inline bool initWiFi(String ssid, String passw) {
   return true;
 }
 
-int i_println=0;
 void spinTelem(bool force_pub) {
   static int telem_pub_count = 0;
   unsigned long time_now_us = esp_timer_get_time();
@@ -395,20 +370,30 @@ void spinTelem(bool force_pub) {
   publishTelem(step_time_us);
   telem_prev_pub_time_us = time_now_us;
 
-  if (++telem_pub_count % 5 == 0) {
-    RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)), ERR_UROS_SPIN);
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  //if (++telem_pub_count % 5 == 0) {
     //Serial.print("RPM L ");
     //Serial.print(drive.getCurrentRPM(MOTOR_LEFT));
     //Serial.print(" R ");
     //Serial.println(drive.getCurrentRPM(MOTOR_RIGHT));
-  }
+  //}
 
-  Serial.print(step_time_us / 1000);  
-  if (++i_println % 30 == 0)
-    Serial.println();
-  else
-    Serial.print(" ");
+  #ifdef SPIN_TELEM_STATS
+  stat_sum_spin_telem_period_us += step_time_us;
+  stat_max_spin_telem_period_us = stat_max_spin_telem_period_us <= step_time_us ?
+    step_time_us : stat_max_spin_telem_period_us;
+  
+  // How often telemetry gets published
+  if (++telem_pub_count % SPIN_TELEM_STATS == 0) {
+    Serial.print("spinTelem() period avg ");
+    Serial.print(stat_sum_spin_telem_period_us / (1000*SPIN_TELEM_STATS));
+    Serial.print(" max ");
+    Serial.print(stat_max_spin_telem_period_us / 1000);
+    Serial.println("ms");
+    stat_sum_spin_telem_period_us = 0;
+    stat_max_spin_telem_period_us = 0;
+  }
+  #endif
 }
 
 void publishTelem(unsigned long step_time_us)
@@ -442,12 +427,12 @@ void calcOdometry(unsigned long step_time_us, float joint_pos_delta_right,
   if (step_time_us == 0)
     return;
   // https://automaticaddison.com/how-to-publish-wheel-odometry-information-over-ros/
-  float distance_right = joint_pos_delta_right * WHEEL_RADIUS;
+  float distance_right = -joint_pos_delta_right * WHEEL_RADIUS;
   float distance_left = joint_pos_delta_left * WHEEL_RADIUS;
 
   // TODO use Runge-Kutta integration for better accuracy
   float average_distance = (distance_right + distance_left) * 0.5;
-  float d_yaw = asin((distance_right - distance_left)*WHEEL_BASE_RECIP);
+  float d_yaw = asin((distance_left - distance_right)*WHEEL_BASE_RECIP);
 
   // Average angle during the motion
   float average_angle = d_yaw*0.5 + telem_msg.odom_pos_yaw;
@@ -527,30 +512,62 @@ void spinLDS() {
 
 void spinPing() {
   unsigned long time_now_us = esp_timer_get_time();
-  unsigned long step_time_us = step_time_us = time_now_us - ping_prev_pub_time_us;
+  unsigned long step_time_us = time_now_us - ping_prev_pub_time_us;
   
   if (step_time_us >= ping_pub_period_us) {
     // timeout_ms, attempts
     rmw_ret_t rc = rmw_uros_ping_agent(1, 1);
     ping_prev_pub_time_us = time_now_us;
     Serial.println(rc == RCL_RET_OK ? "Ping OK" : "Ping error");
-    i_println = 0;
   }
 }
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    enableMotor(false);
-    drive.setRPM(MOTOR_RIGHT, ramp_target_rpm_right);
-    drive.setRPM(MOTOR_LEFT, ramp_target_rpm_left);
+    enableLdsMotor(false);
+    drive.setRPM(MOTOR_RIGHT, 0);
+    drive.setRPM(MOTOR_LEFT, 0);
     return;
   }
 
   spinLDS();
+  
+  // Process micro-ROS callbacks
+  RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)), ERR_UROS_SPIN);
+
   spinTelem(false);
   spinPing();
-  updateSpeedRamp(); // slow down?
+  spinResetSettings();
+  updateSpeedRamp(); // update ramp less frequently?
   drive.update();
+}
+
+unsigned int reset_settings_check_period_ms = 1000; // Check once a second
+unsigned char button_pressed_seconds = 0;
+unsigned long reset_settings_prev_check_time_ms = 0;
+
+void resetSettings() {
+  Serial.println("** Resetting settings **");
+  resetWiFiSettings();
+  blink(LONG_BLINK_MS, 5);
+  Serial.flush();
+
+  ESP.restart();
+}
+
+void spinResetSettings() {
+  unsigned long time_now_ms = millis();
+  unsigned long step_time_ms = time_now_ms - reset_settings_prev_check_time_ms;
+
+  if (step_time_ms >= reset_settings_check_period_ms) {
+
+    bool button_pressed = !digitalRead(0);
+    if (button_pressed && button_pressed_seconds > RESET_SETTINGS_HOLD_SEC)
+      resetSettings();
+
+    button_pressed_seconds = button_pressed ? button_pressed_seconds + 1 : 0;
+    reset_settings_prev_check_time_ms = time_now_ms;
+  }
 }
 
 void resetTelemMsg()
@@ -582,7 +599,7 @@ void resetTelemMsg()
 }
 
 void syncRosTime() {
-  const int timeout_ms = 1000;
+  const int timeout_ms = UROS_TIME_SYNC_TIMEOUT_MS;
 
   Serial.print("Syncing time ... ");
   RCCHECK(rmw_uros_sync_session(timeout_ms), ERR_UROS_TIME_SYNC);
@@ -614,27 +631,29 @@ static inline void logMsgInfo(char* msg) {
 }
 
 void logMsg(char* msg, uint8_t severity_level) {
-  rcl_interfaces__msg__Log msgLog;
-  // https://docs.ros2.org/foxy/api/rcl_interfaces/msg/Log.html
-  // builtin_interfaces__msg__Time stamp;
-  struct timespec tv = {0};
-  clock_gettime(CLOCK_REALTIME, &tv);
-  msgLog.stamp.sec = tv.tv_sec;
-  msgLog.stamp.nanosec = tv.tv_nsec;
+  if (WiFi.status() != WL_CONNECTED) {
+    rcl_interfaces__msg__Log msgLog;
+    // https://docs.ros2.org/foxy/api/rcl_interfaces/msg/Log.html
+    // builtin_interfaces__msg__Time stamp;
+    struct timespec tv = {0};
+    clock_gettime(CLOCK_REALTIME, &tv);
+    msgLog.stamp.sec = tv.tv_sec;
+    msgLog.stamp.nanosec = tv.tv_nsec;
+    
+    msgLog.level = severity_level;
+    msgLog.name.data = (char*)UROS_NODE_NAME; // Logger name
+    msgLog.name.size = strlen(msgLog.name.data);
+    msgLog.msg.data = msg;
+    msgLog.msg.size = strlen(msgLog.msg.data);
+    //char fileName[] = __FILE__;
+    msgLog.file.data = (char*)""; // Source code file name
+    msgLog.file.size = strlen(msgLog.file.data);
+    msgLog.function.data = (char*)""; // Source code function name
+    msgLog.function.size = strlen(msgLog.function.data);
+    msgLog.line = 0; // Source code line number
+    RCSOFTCHECK(rcl_publish(&log_pub, &msgLog, NULL));
+  }
   
-  msgLog.level = severity_level;
-  msgLog.name.data = (char*)UROS_NODE_NAME; // Logger name
-  msgLog.name.size = strlen(msgLog.name.data);
-  msgLog.msg.data = msg;
-  msgLog.msg.size = strlen(msgLog.msg.data);
-  //char fileName[] = __FILE__;
-  msgLog.file.data = (char*)""; // Source code file name
-  msgLog.file.size = strlen(msgLog.file.data);
-  msgLog.function.data = (char*)""; // Source code function name
-  msgLog.function.size = strlen(msgLog.function.data);
-  msgLog.line = 0; // Source code line number
-  RCSOFTCHECK(rcl_publish(&log_pub, &msgLog, NULL));
-
   String s = "UNDEFINED";
   switch(severity_level) {
     case rcl_interfaces__msg__Log__INFO:
@@ -662,14 +681,14 @@ void logMsg(char* msg, uint8_t severity_level) {
 int initLDS() {
   Serial.print("LDS RX buffer size "); // default 128 hw + 256 sw
   Serial.println(LdSerial.setRxBufferSize(1024)); // must be before .begin()
-  lds.begin(LdSerial, 128000);
+  lds.begin(LdSerial, LDS_SERIAL_BAUD);
   ledcSetup(0, 10000, 8);
   ledcAttachPin(YD_MOTOR_SCTP_PIN, 0);
 //  pinMode(YD_MOTOR_SCTP_PIN, INPUT);
 //  pinMode(YD_MOTOR_EN_PIN, OUTPUT);
 
   setMotorSpeed(YD_MOTOR_SPEED_DEFAULT);
-  enableMotor(false);
+  enableLdsMotor(false);
   while (LdSerial.read() >= 0) {};
   
   device_info deviceinfo;
@@ -754,7 +773,7 @@ int initLDS() {
       return -1;
     } else {
 //      isScanning = true;
-      enableMotor(true);
+      enableLdsMotor(true);
       Serial.println(F("lds.startScan() successful"));
       delay(1000);
     }
@@ -762,19 +781,32 @@ int initLDS() {
   return 0;
 }
 
+void blink_error_code(int n_blinks) {
+  unsigned int i = 0;
+  while(i++ < ERR_REBOOT_BLINK_CYCLES){
+    blink(LONG_BLINK_MS, 1);
+    digitalWrite(LED_PIN, LOW);
+    delay(SHORT_BLINK_PAUSE_MS);
+    blink(SHORT_BLINK_MS, n_blinks);
+    delay(LONG_BLINK_PAUSE_MS);
+
+    while(!digitalRead(0)) {
+      spinResetSettings();
+    }
+  }
+}
+
 void error_loop(int n_blinks){
-  Serial.print(F("error_loop() code "));
-  Serial.println(n_blinks);
-  enableMotor(false);
+  enableLdsMotor(false);
 
   char buffer[40];
-  sprintf(buffer, "Fatal error %d", n_blinks);  
+  sprintf(buffer, "Error code %d", n_blinks);  
   logMsg(buffer, rcl_interfaces__msg__Log__FATAL);
 
-  while(1){
-    blink(1000, 1);
-    digitalWrite(LED_PIN, LOW);
-    delay(1000);
-    blink(200, n_blinks);
-  }
+  blink_error_code(n_blinks);
+
+  Serial.println("Rebooting...");
+  Serial.flush();
+
+  ESP.restart();
 }

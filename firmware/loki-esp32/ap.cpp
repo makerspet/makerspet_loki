@@ -1,32 +1,19 @@
 #include "ap.h"
 
-// Search for parameter in HTTP POST request
-const char* PARAM_INPUT_1 = "ssid";
-const char* PARAM_INPUT_2 = "pass";
-const char* PARAM_INPUT_3 = "ip";
-const char* PARAM_INPUT_4 = "gateway";
-
 //Variables to save values from HTML form
 String ssid;
 String pass;
-String ip;
-String gateway;
+String dest_ip;
+String dest_port;
 
 // File paths to save input values permanently
 const char* ssidPath = "/ssid.txt";
 const char* passPath = "/pass.txt";
-const char* ipPath = "/ip.txt";
-const char* gatewayPath = "/gateway.txt";
-
-//IPAddress localIP(192, 168, 1, 200); // hardcoded
-IPAddress localIP;
-// Set your Gateway IP address
-IPAddress localGateway;
-//IPAddress localGateway(192, 168, 1, 1); //hardcoded
-IPAddress subnet(255, 255, 0, 0);
+const char* destIpPath = "/dest_ip.txt";
+const char* destPortPath = "/dest_port.txt";
 
 // Read File from SPIFFS
-String readFile(fs::FS &fs, const char * path){
+String readFile(fs::FS &fs, const char * path) {
   Serial.printf("Reading file: %s\r\n", path);
 
   File file = fs.open(path);
@@ -46,19 +33,26 @@ String readFile(fs::FS &fs, const char * path){
 // Initialize SPIFFS
 void initSPIFFS() {
   if (!SPIFFS.begin(true)) {
-    Serial.println("An error has occurred while mounting SPIFFS");
+    Serial.println("Error mounting SPIFFS");
+    return;
   }
   Serial.println("SPIFFS mounted successfully");
 
   // Load values saved in SPIFFS
   ssid = readFile(SPIFFS, ssidPath);
   pass = readFile(SPIFFS, passPath);
-  ip = readFile(SPIFFS, ipPath);
-  gateway = readFile (SPIFFS, gatewayPath);
-  Serial.println(ssid);
-  Serial.println(pass);
-  Serial.println(ip);
-  Serial.println(gateway);
+  dest_ip = readFile(SPIFFS, destIpPath);
+  dest_port = readFile(SPIFFS, destPortPath);
+
+  Serial.print("ssid='");
+  Serial.print(ssid);
+  Serial.print("' pass='");
+  Serial.print(pass);
+  Serial.print("' dest_ip='");
+  Serial.print(dest_ip);
+  Serial.print("' dest_port='");
+  Serial.print(dest_port);
+  Serial.println("'");
 }
 
 // Write file to SPIFFS
@@ -77,10 +71,9 @@ void writeFile(fs::FS &fs, const char * path, const char * message){
   }
 }
 
-void ObtainWiFiCreds() {
-  // Create AsyncWebServer object on port 80
-  AsyncWebServer server(80);
-  
+void ObtainWiFiCreds(void (*callback)()) {
+  AsyncWebServer server(80);  // Create AsyncWebServer object on port 80
+
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Setting up Access Point ");
   Serial.println(SSID_AP);
@@ -104,7 +97,7 @@ void ObtainWiFiCreds() {
       AsyncWebParameter* p = request->getParam(i);
       if(p->isPost()){
         // HTTP POST ssid value
-        if (p->name() == PARAM_INPUT_1) {
+        if (p->name() == PARAM_INPUT_SSID) {
           ssid = p->value().c_str();
           Serial.print("SSID set to: ");
           Serial.println(ssid);
@@ -112,40 +105,50 @@ void ObtainWiFiCreds() {
           writeFile(SPIFFS, ssidPath, ssid.c_str());
         }
         // HTTP POST pass value
-        if (p->name() == PARAM_INPUT_2) {
+        if (p->name() == PARAM_INPUT_PASS) {
           pass = p->value().c_str();
           Serial.print("Password set to: ");
           Serial.println(pass);
           // Write file to save value
           writeFile(SPIFFS, passPath, pass.c_str());
         }
-        // HTTP POST ip value
-        if (p->name() == PARAM_INPUT_3) {
-          ip = p->value().c_str();
-          Serial.print("IP Address set to: ");
-          Serial.println(ip);
+        // HTTP POST destination IP value
+        if (p->name() == PARAM_INPUT_DEST_IP) {
+          dest_ip = p->value().c_str();
+          Serial.print("Destination IP set to: ");
+          Serial.println(dest_ip);
           // Write file to save value
-          writeFile(SPIFFS, ipPath, ip.c_str());
+          writeFile(SPIFFS, destIpPath, dest_ip.c_str());
         }
-        // HTTP POST gateway value
-        if (p->name() == PARAM_INPUT_4) {
-          gateway = p->value().c_str();
-          Serial.print("Gateway set to: ");
-          Serial.println(gateway);
+        // HTTP POST destination port value
+        if (p->name() == PARAM_INPUT_DEST_PORT) {
+          dest_port = p->value().c_str();
+          Serial.print("Destination port set to: ");
+          Serial.println(dest_port);
           // Write file to save value
-          writeFile(SPIFFS, gatewayPath, gateway.c_str());
+          writeFile(SPIFFS, destPortPath, dest_port.c_str());
         }
         //Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
       }
     }
-    request->send(200, "text/plain",
-      "Done. ESP will restart, connect to your router and go to IP address: " + ip);
-    delay(3000);
+    request->send(200, "text/html; charset=utf-8",
+      "<HTML><BODY>"
+      "<center><h1><br>Connecting to your router...</h1>"
+      "<p>SSID: " + ssid + "</p>"
+      "<p>WiFi password: [not shown]</p>"
+      "<p>Destination IP: " + dest_ip + "</p>"
+      "<p>Destination Port: " + dest_port + "</p>"
+      "</center></BODY></HTML>");
+    unsigned long ms = millis();
+    while(millis() - ms < 3000)
+      yield();
     ESP.restart();
   });
   server.begin();
-  while(true)
+  while(true) {
+    callback();
     yield();
+  }
 }
 
 String getSSID() {
@@ -156,10 +159,17 @@ String getPassw() {
   return pass;
 }
 
-String getIP() {
-  return ip;
+String getDestIP() {
+  return dest_ip;
 }
 
-String getGateway() {
-  return gateway;
+String getDestPort() {
+  return dest_port;
+}
+
+void resetWiFiSettings() {
+  SPIFFS.remove(ssidPath);
+  SPIFFS.remove(passPath);
+  SPIFFS.remove(destIpPath);
+  SPIFFS.remove(destPortPath);
 }

@@ -28,7 +28,7 @@
 #define MOT_CW_RIGHT_PIN           25
 #define MOT_FG_RIGHT_PIN           27
 
-#define MOTOR_WHEEL_MAX_RPM        180 // rated 145, no-load 200
+#define MOTOR_WHEEL_MAX_RPM        200 // rated 145, no-load 200
 
 // 1:45 gear ratio * 6 pulses/cycle * 2 edges
 #define WHEEL_ENCODER_TPR         (45.0*6*2) // ticks per revolution
