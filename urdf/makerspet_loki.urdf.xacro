@@ -13,21 +13,21 @@
   <!-- Caster center to base edge -->
   <xacro:property name="caster_inset" value="0.0405"/>
   <xacro:property name="floor_clearance" value="0.018"/>
-  <xacro:property name="base_diameter" value="0.200"/>
-  <xacro:property name="wheel_base" value="0.162794"/>
-  <xacro:property name="lower_cylinder_height" value="0.119"/>
-  <xacro:property name="lower_to_upper_cylinders_gap" value="0.026"/>
-  <xacro:property name="laser_puck_to_upper_cylinder_gap" value="0.005"/>
+  <xacro:property name="base_diameter" value="0.2042"/>
+  <xacro:property name="wheel_base" value="0.159063"/>
+  <xacro:property name="lower_cylinder_height" value="0.1227"/>
+  <xacro:property name="lower_to_upper_cylinders_gap" value="0.0195"/>
+  <xacro:property name="laser_puck_to_upper_cylinder_gap" value="0.0022"/>
   <xacro:property name="laser_puck_diameter" value="0.0656"/>
-  <xacro:property name="upper_cylinder_height" value="0.013"/>
-  <xacro:property name="head_height" value="0.104"/>
+  <xacro:property name="upper_cylinder_height" value="0.003"/>
+  <xacro:property name="head_height" value="0.09"/>
   <xacro:property name="tablet_width" value="0.1669"/>
   <xacro:property name="tablet_height" value="0.0781"/>
   <xacro:property name="tablet_thickness" value="0.009"/>
   <!-- Zero - tablet faces straight forward -->
   <xacro:property name="tablet_pitch_angle" value="20"/>
   <!-- Upper cylinder's front to tablet bottom's center -->
-  <xacro:property name="tablet_inset" value="0.055"/>
+  <xacro:property name="tablet_inset" value="0.072128"/>
   <xacro:property name="color_camera_diameter" value="0.004"/>
   <!-- Tablet edge to camera center -->
   <xacro:property name="color_camera_inset" value="0.008"/>
