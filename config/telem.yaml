@@ -6,7 +6,7 @@ kaiaai_telemetry_node:
         # Radian
         angle_min: 0.0
         angle_max: 6.283185307179586476925286766559
-        range_min: 0.1
+        range_min: 0.15
         range_max: 12.0
         topic_name_pub: "scan"
         frame_id: "base_scan"
