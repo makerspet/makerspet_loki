@@ -9,7 +9,7 @@
           <ixy>-1.23224e-19</ixy>
           <ixz>-0.000527515</ixz>
           <iyy>0.0106558</iyy>
-          <iyz>-3.15377e-19</iyz>
+          <iyz>-3.09689e-19</iyz>
           <izz>0.00342416</izz>
         </inertia>
       </inertial>
@@ -92,7 +92,7 @@
         </surface>
       </collision>
       <collision name='base_footprint_fixed_joint_lump__base_scan_collision_5'>
-        <pose>0 0 0.1475 0 -0 0</pose>
+        <pose>0 0 0.1475 -3.14159 0 0</pose>
         <geometry>
           <cylinder>
             <length>0.021</length>
@@ -193,7 +193,7 @@
         </material>
       </visual>
       <visual name='base_footprint_fixed_joint_lump__base_scan_visual_7'>
-        <pose>0 0 0.1475 0 -0 0</pose>
+        <pose>0 0 0.1475 -3.14159 0 0</pose>
         <geometry>
           <cylinder>
             <length>0.021</length>
@@ -309,11 +309,11 @@
           <output_type>sensor_msgs/LaserScan</output_type>
           <frame_name>base_scan</frame_name>
         </plugin>
-        <pose>0 0 0.1475 0 -0 0</pose>
+        <pose>0 0 0.1475 -3.14159 0 0</pose>
       </sensor>
     </link>
     <joint name='wheel_left_joint' type='revolute'>
-      <pose relative_to='base_footprint'>0 0.065699 0.0335 -1.5708 0 0</pose>
+      <pose relative_to='base_footprint'>0 0.081397 0.0335 -1.5708 0 0</pose>
       <parent>base_footprint</parent>
       <child>wheel_left_link</child>
       <axis>
@@ -379,7 +379,7 @@
       </visual>
     </link>
     <joint name='wheel_right_joint' type='revolute'>
-      <pose relative_to='base_footprint'>0 -0.065699 0.0335 -1.5708 0 0</pose>
+      <pose relative_to='base_footprint'>0 -0.081397 0.0335 -1.5708 0 0</pose>
       <parent>base_footprint</parent>
       <child>wheel_right_link</child>
       <axis>
@@ -448,7 +448,7 @@
       <update_rate>30</update_rate>
       <left_joint>wheel_left_joint</left_joint>
       <right_joint>wheel_right_joint</right_joint>
-      <wheel_separation>0.131397</wheel_separation>
+      <wheel_separation>0.162794</wheel_separation>
       <wheel_diameter>0.067</wheel_diameter>
       <max_wheel_torque>0.49</max_wheel_torque>
       <max_wheel_acceleration>5</max_wheel_acceleration>
