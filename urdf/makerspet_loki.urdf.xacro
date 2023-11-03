@@ -9,7 +9,7 @@
   <!-- Units: meters, degrees, kg, N*m, m/s2 -->
   <xacro:property name="wheel_diameter" value="0.067"/>
   <xacro:property name="wheel_width" value="0.029"/>
-  <xacro:property name="caster_diameter" value="0.042"/>
+  <xacro:property name="caster_diameter" value="0.04"/>
   <!-- Caster center to base edge -->
   <xacro:property name="caster_inset" value="0.0386"/>
   <xacro:property name="floor_clearance" value="0.018"/>
