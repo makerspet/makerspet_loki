@@ -2,23 +2,23 @@
   <model name='makerspet_loki'>
     <link name='base_footprint'>
       <inertial>
-        <pose>0.008352 0 0.102967 0 -0 0</pose>
+        <pose>0.006303 0 0.098828 0 -0 0</pose>
         <mass>1.22</mass>
         <inertia>
-          <ixx>0.00976125</ixx>
+          <ixx>0.0091132</ixx>
           <ixy>-1.23224e-19</ixy>
-          <ixz>-0.000527515</ixz>
-          <iyy>0.0106558</iyy>
-          <iyz>-3.09689e-19</iyz>
-          <izz>0.00342416</izz>
+          <ixz>-0.000280919</ixz>
+          <iyy>0.00988537</iyy>
+          <iyz>-3.17925e-19</iyz>
+          <izz>0.0033856</izz>
         </inertia>
       </inertial>
       <collision name='base_footprint_fixed_joint_lump__base_link_collision'>
-        <pose>0 0 0.0775 0 -0 0</pose>
+        <pose>0 0 0.07935 0 -0 0</pose>
         <geometry>
           <cylinder>
-            <length>0.119</length>
-            <radius>0.1</radius>
+            <length>0.1227</length>
+            <radius>0.1021</radius>
           </cylinder>
         </geometry>
         <surface>
@@ -31,11 +31,11 @@
         </surface>
       </collision>
       <collision name='base_footprint_fixed_joint_lump__base_upper_link_collision_1'>
-        <pose>0 0 0.1695 0 -0 0</pose>
+        <pose>0 0 0.1617 0 -0 0</pose>
         <geometry>
           <cylinder>
-            <length>0.013</length>
-            <radius>0.1</radius>
+            <length>0.003</length>
+            <radius>0.1021</radius>
           </cylinder>
         </geometry>
         <surface>
@@ -48,11 +48,11 @@
         </surface>
       </collision>
       <collision name='base_footprint_fixed_joint_lump__head_link_collision_2'>
-        <pose>0 0 0.228 0 -0 0</pose>
+        <pose>0 0 0.2082 0 -0 0</pose>
         <geometry>
           <cylinder>
-            <length>0.104</length>
-            <radius>0.1</radius>
+            <length>0.09</length>
+            <radius>0.1021</radius>
           </cylinder>
         </geometry>
         <surface>
@@ -65,7 +65,7 @@
         </surface>
       </collision>
       <collision name='base_footprint_fixed_joint_lump__tablet_link_collision_3'>
-        <pose>0.031644 0 0.212695 1.22173 -0 1.5708</pose>
+        <pose>0.018744 0 0.199895 1.22173 -0 1.5708</pose>
         <geometry>
           <box>
             <size>0.1669 0.0781 0.009</size>
@@ -73,10 +73,10 @@
         </geometry>
       </collision>
       <collision name='base_footprint_fixed_joint_lump__caster_link_collision_4'>
-        <pose>0.0595 0 0.021 0 -0 0</pose>
+        <pose>0.0635 0 0.02 0 -0 0</pose>
         <geometry>
           <sphere>
-            <radius>0.021</radius>
+            <radius>0.02</radius>
           </sphere>
         </geometry>
         <surface>
@@ -92,10 +92,10 @@
         </surface>
       </collision>
       <collision name='base_footprint_fixed_joint_lump__base_scan_collision_5'>
-        <pose>0 0 0.1475 -3.14159 0 0</pose>
+        <pose>0 0 0.14935 -3.14159 0 0</pose>
         <geometry>
           <cylinder>
-            <length>0.021</length>
+            <length>0.0173</length>
             <radius>0.0328</radius>
           </cylinder>
         </geometry>
@@ -109,11 +109,11 @@
         </surface>
       </collision>
       <visual name='base_footprint_fixed_joint_lump__base_link_visual'>
-        <pose>0 0 0.0775 0 -0 0</pose>
+        <pose>0 0 0.07935 0 -0 0</pose>
         <geometry>
           <cylinder>
-            <length>0.119</length>
-            <radius>0.1</radius>
+            <length>0.1227</length>
+            <radius>0.1021</radius>
           </cylinder>
         </geometry>
         <material>
@@ -124,11 +124,11 @@
         </material>
       </visual>
       <visual name='base_footprint_fixed_joint_lump__base_upper_link_visual_1'>
-        <pose>0 0 0.1695 0 -0 0</pose>
+        <pose>0 0 0.1617 0 -0 0</pose>
         <geometry>
           <cylinder>
-            <length>0.013</length>
-            <radius>0.1</radius>
+            <length>0.003</length>
+            <radius>0.1021</radius>
           </cylinder>
         </geometry>
         <material>
@@ -139,10 +139,10 @@
         </material>
       </visual>
       <visual name='base_footprint_fixed_joint_lump__head_link_visual_2'>
-        <pose>0 0 0.176 0 -0 0</pose>
+        <pose>0 0 0.1632 0 -0 0</pose>
         <geometry>
           <mesh>
-            <scale>0.0002 0.0002 0.000208</scale>
+            <scale>0.000204 0.000204 0.00018</scale>
             <uri>model://makerspet_loki/mesh/head.stl</uri>
           </mesh>
         </geometry>
@@ -154,7 +154,7 @@
         </material>
       </visual>
       <visual name='base_footprint_fixed_joint_lump__tablet_link_visual_3'>
-        <pose>0.031644 0 0.212695 1.22173 -0 1.5708</pose>
+        <pose>0.018744 0 0.199895 1.22173 -0 1.5708</pose>
         <geometry>
           <box>
             <size>0.1669 0.0781 0.009</size>
@@ -162,7 +162,7 @@
         </geometry>
       </visual>
       <visual name='base_footprint_fixed_joint_lump__color_camera_link_visual_4'>
-        <pose>0.035779 -0.07545 0.2142 0 1.22173 0</pose>
+        <pose>0.022879 -0.07545 0.2014 0 1.22173 0</pose>
         <geometry>
           <cylinder>
             <length>0.0001</length>
@@ -171,7 +171,7 @@
         </geometry>
       </visual>
       <visual name='base_footprint_fixed_joint_lump__imu_link_visual_5'>
-        <pose>0.031644 0 0.212695 0 -0.349066 0</pose>
+        <pose>0.018744 0 0.199895 0 -0.349066 0</pose>
         <geometry>
           <box>
             <size>0.001 0.002 0.004</size>
@@ -179,10 +179,10 @@
         </geometry>
       </visual>
       <visual name='base_footprint_fixed_joint_lump__caster_link_visual_6'>
-        <pose>0.0595 0 0.021 0 -0 0</pose>
+        <pose>0.0635 0 0.02 0 -0 0</pose>
         <geometry>
           <sphere>
-            <radius>0.021</radius>
+            <radius>0.02</radius>
           </sphere>
         </geometry>
         <material>
@@ -193,10 +193,10 @@
         </material>
       </visual>
       <visual name='base_footprint_fixed_joint_lump__base_scan_visual_7'>
-        <pose>0 0 0.1475 -3.14159 0 0</pose>
+        <pose>0 0 0.14935 -3.14159 0 0</pose>
         <geometry>
           <cylinder>
-            <length>0.021</length>
+            <length>0.0173</length>
             <radius>0.0328</radius>
           </cylinder>
         </geometry>
@@ -223,7 +223,7 @@
           </noise>
         </camera>
         <plugin name='color_camera_plugin' filename='libgazebo_ros_camera.so'/>
-        <pose>0.035779 -0.07545 0.2142 0 -0.349066 0</pose>
+        <pose>0.022879 -0.07545 0.2014 0 -0.349066 0</pose>
       </sensor>
       <gravity>1</gravity>
       <sensor name='imu_sensor' type='imu'>
@@ -276,7 +276,7 @@
             <remapping>~/out:=imu</remapping>
           </ros>
         </plugin>
-        <pose>0.031644 0 0.212695 0 -0.349066 0</pose>
+        <pose>0.018744 0 0.199895 0 -0.349066 0</pose>
       </sensor>
       <sensor name='laser_scan_sensor' type='ray'>
         <visualize>1</visualize>
@@ -309,11 +309,11 @@
           <output_type>sensor_msgs/LaserScan</output_type>
           <frame_name>base_scan</frame_name>
         </plugin>
-        <pose>0 0 0.1475 -3.14159 0 0</pose>
+        <pose>0 0 0.14935 -3.14159 0 0</pose>
       </sensor>
     </link>
     <joint name='wheel_left_joint' type='revolute'>
-      <pose relative_to='base_footprint'>0 0.081397 0.0335 -1.5708 0 0</pose>
+      <pose relative_to='base_footprint'>0 0.079532 0.0335 -1.5708 0 0</pose>
       <parent>base_footprint</parent>
       <child>wheel_left_link</child>
       <axis>
@@ -379,7 +379,7 @@
       </visual>
     </link>
     <joint name='wheel_right_joint' type='revolute'>
-      <pose relative_to='base_footprint'>0 -0.081397 0.0335 -1.5708 0 0</pose>
+      <pose relative_to='base_footprint'>0 -0.079532 0.0335 -1.5708 0 0</pose>
       <parent>base_footprint</parent>
       <child>wheel_right_link</child>
       <axis>
@@ -448,7 +448,7 @@
       <update_rate>30</update_rate>
       <left_joint>wheel_left_joint</left_joint>
       <right_joint>wheel_right_joint</right_joint>
-      <wheel_separation>0.162794</wheel_separation>
+      <wheel_separation>0.159063</wheel_separation>
       <wheel_diameter>0.067</wheel_diameter>
       <max_wheel_torque>0.49</max_wheel_torque>
       <max_wheel_acceleration>5</max_wheel_acceleration>
