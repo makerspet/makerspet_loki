@@ -27,7 +27,7 @@
   <!-- Zero - tablet faces straight forward -->
   <xacro:property name="tablet_pitch_angle" value="20"/>
   <!-- Upper cylinder's front to tablet bottom's center -->
-  <xacro:property name="tablet_inset" value="0.072128"/>
+  <xacro:property name="tablet_inset" value="0.07"/>
   <xacro:property name="color_camera_diameter" value="0.004"/>
   <!-- Tablet edge to camera center -->
   <xacro:property name="color_camera_inset" value="0.008"/>
