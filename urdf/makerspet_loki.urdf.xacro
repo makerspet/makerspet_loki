@@ -11,7 +11,7 @@
   <xacro:property name="wheel_width" value="0.029"/>
   <xacro:property name="caster_diameter" value="0.042"/>
   <!-- Caster center to base edge -->
-  <xacro:property name="caster_inset" value="0.0405"/>
+  <xacro:property name="caster_inset" value="0.0386"/>
   <xacro:property name="floor_clearance" value="0.018"/>
   <xacro:property name="base_diameter" value="0.2042"/>
   <xacro:property name="wheel_base" value="0.159063"/>
