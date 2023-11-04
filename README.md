@@ -1,6 +1,6 @@
 # Maker's Pet Loki DIY home robot
 
-A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) software [platform](https://github.com/kaiaai/)
+A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) software [platform](https://github.com/kaiaai/).
 
 3D print, build, run and mod your own home pet robot! Please learn more at [Maker's Pet](https://makerspet.com).
 
@@ -19,7 +19,7 @@ A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) so
 - Arduino ESP32 micro-controller
 
 ## Instructions
-- 3D printing [STL](https://github.com/makerspet/makerspet_loki/tree/main/stl), [3MF](https://github.com/makerspet/makerspet_loki/tree/main/3mf), [Fusion 360](https://github.com/makerspet/makerspet_loki/tree/main/fusion360) and instructions (TBD)
+- 3D printing [STL](https://github.com/makerspet/makerspet_loki/tree/main/stl), [3MF](https://github.com/makerspet/makerspet_loki/tree/main/3mf) and instructions (TBD)
 - Arduino ESP32 [firmware](https://github.com/makerspet/makerspet_loki/tree/main/arduino)
 - PC end user and developer [setup](https://github.com/kaiaai/docker)
 - KiCad [schematic, PCB](https://github.com/makerspet/makerspet_loki/tree/main/kicad)
