@@ -47,7 +47,7 @@ ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true map:=$HOME/my
 
 # Inspect or edit robot's URDF model - useful when modding a robot
 ros2 launch kaiaai_bringup inspect_urdf.launch.py robot_model:=awesome_droid
-ros2 launch kaiaai_bringup edit_urdf.launch.py drobot_model:=awesome_droid
+ros2 launch kaiaai_bringup edit_urdf.launch.py robot_model:=awesome_droid
 
 # Convert URDF robot model file into SDF Gazebo simulation model file
 ros2 run kaiaai_gazebo urdf2sdf.sh /ros_ws/src/awesome_droid
