@@ -41,7 +41,7 @@
   <xacro:property name="max_wheel_acceleration" value="5"/>
   <xacro:property name="lower_cylinder_mass" value="0.500"/>
   <!-- caster and battery weight -->
-  <xacro:property name="caster_mass" value="0.220"/>
+  <xacro:property name="caster_mass" value="0.320"/>
   <xacro:property name="wheel_mass" value="0.050"/>
   <xacro:property name="laser_puck_mass" value="0.200"/>
   <xacro:property name="upper_cylinder_mass" value="0.100"/>
