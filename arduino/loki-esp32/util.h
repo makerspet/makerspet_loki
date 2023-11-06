@@ -2,7 +2,7 @@
 #define KAIA_ESP32_UTIL
 
 #include "arduino.h"
-#include "loki-esp32.h"
+#include "robot_config.h"
 
 const float WHEEL_PERIM_LEN_DIV60 = PI * WHEEL_DIA / 60;
 const float WHEEL_PERIM_LEN_DIV60_RECIP = 1/WHEEL_PERIM_LEN_DIV60;

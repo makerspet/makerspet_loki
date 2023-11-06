@@ -71,7 +71,7 @@ void writeFile(fs::FS &fs, const char * path, const char * message){
   }
 }
 
-void ObtainWiFiCreds(void (*callback)()) {
+void ObtainWiFiCreds(void (*callback)(), const char * SSID_AP) {
   AsyncWebServer server(80);  // Create AsyncWebServer object on port 80
 
   // Connect to Wi-Fi network with SSID and password

@@ -7,8 +7,6 @@
 #include <AsyncTCP.h>
 #include "SPIFFS.h"
 
-#define SSID_AP "KAIAAI-WIFI"
-
 // Search for parameter in HTTP POST request
 #define PARAM_INPUT_SSID "ssid"
 #define PARAM_INPUT_PASS "pass"
@@ -16,7 +14,7 @@
 #define PARAM_INPUT_DEST_PORT "dest_port"
 
 void initSPIFFS();
-void ObtainWiFiCreds(void (*callback)());
+void ObtainWiFiCreds(void (*callback)(), const char * SSID_AP);
 String getSSID();
 String getPassw();
 String getDestIP();
