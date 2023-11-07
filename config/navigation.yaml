@@ -1,3 +1,4 @@
+# Based on humble turtlebot3_navigation2/param/burger.yaml
 amcl:
   ros__parameters:
     use_sim_time: False
