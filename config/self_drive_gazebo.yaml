@@ -3,8 +3,8 @@ self_drive_gazebo_node:
 
     velocity:
       topic_name_pub: "cmd_vel"
-      linear: 0.1
-      angular: 0.3
+      linear: 0.3
+      angular: 1.5
 
     laser_scan:
       topic_name_sub: "scan"
