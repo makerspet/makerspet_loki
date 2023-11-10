@@ -6,9 +6,14 @@ A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) so
 
 ![Loki cropped](https://github.com/makerspet/makerspet_loki/assets/143911662/9e3857b0-df87-4fda-9d94-bfc53fed399d)
 
-## Watch the assembly instructions video
+## Assembly instructions video
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=WPB2B1DPf_s" target="_blank">
  <img src="http://img.youtube.com/vi/WPB2B1DPf_s/maxresdefault.jpg" alt="Watch the assembly instructions video" width="720" height="405" border="10" />
+</a>
+
+## PC, firmware setup instructions video
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=XOc5kCE3MC0" target="_blank">
+ <img src="http://img.youtube.com/vi/XOc5kCE3MC0/maxresdefault.jpg" alt="Watch the one-time PC setup, firmware upload instructions video" width="720" height="405" border="10" />
 </a>
 
 ## Features
