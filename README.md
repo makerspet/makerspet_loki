@@ -16,6 +16,11 @@ A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) so
  <img src="http://img.youtube.com/vi/XOc5kCE3MC0/maxresdefault.jpg" alt="Watch the one-time PC setup, firmware upload instructions video" width="720" height="405" border="10" />
 </a>
 
+## Bring-up instructions video
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=L_XbkA4pwRc" target="_blank">
+ <img src="http://img.youtube.com/vi/L_XbkA4pwRc/maxresdefault.jpg" alt="Watch the bring-up instructions video" width="720" height="405" border="10" />
+</a>
+
 ## Features
 - room mapping using a 360-degree laser distance sensor (ROS2-based).
 - autonomous self-driving (ROS2-based).
