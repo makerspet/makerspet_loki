@@ -5,7 +5,7 @@
 //TODO discover ROS2 PC automatically
 //  #define RMW_UXRCE_TRANSPORT_UDP
 
-#include "robot_config.h"
+#include "loki-esp32.h"
 #include "util.h"
 #include <WiFi.h>
 #include <stdio.h>
@@ -230,7 +230,7 @@ void setup() {
 
   if (!initWiFi(getSSID(), getPassw())) {
     digitalWrite(LED_PIN, HIGH);
-    ObtainWiFiCreds(spinResetSettings, UROS_ROBOT_MODEL);
+    ObtainWiFiCreds(spinResetSettings);
     return;
   }
 
