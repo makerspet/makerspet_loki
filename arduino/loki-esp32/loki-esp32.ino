@@ -230,7 +230,7 @@ void setup() {
 
   if (!initWiFi(getSSID(), getPassw())) {
     digitalWrite(LED_PIN, HIGH);
-    ObtainWiFiCreds(spinResetSettings);
+    ObtainWiFiCreds(spinResetSettings, UROS_ROBOT_MODEL);
     return;
   }
 
