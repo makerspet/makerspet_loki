@@ -245,7 +245,8 @@ void setup() {
   logMsgInfo((char*)"Micro-ROS initialized");
   
   if (initLDS() != 0)
-    error_loop(ERR_LDS_INIT);
+    blink_error_code(ERR_LDS_INIT);
+    //error_loop(ERR_LDS_INIT);
   
   drive.initOnce(logInfo);
   drive.resetEncoders();
@@ -316,7 +317,7 @@ static inline void initRos() {
   // RCLC_PARAMETER_MAX_STRING_LENGTH = 50
   const rclc_parameter_options_t rclc_param_options = {
       .notify_changed_over_dds = false,
-      .max_params = 1,
+      .max_params = 3,
       .allow_undeclared_parameters = false,
       .low_mem_mode = true };
   
@@ -326,8 +327,10 @@ static inline void initRos() {
 
   RCCHECK(rclc_executor_init(&executor, &support.context,
     RCLC_EXECUTOR_PARAMETER_SERVER_HANDLES + 1, &allocator), ERR_UROS_EXEC);
+
   RCCHECK(rclc_executor_add_subscription(&executor, &twist_sub,
     &twist_msg, &twist_sub_callback, ON_NEW_DATA), ERR_UROS_EXEC);
+
   RCCHECK(rclc_executor_add_parameter_server(&executor, &param_server,
     on_param_changed), ERR_UROS_EXEC);;
 
@@ -342,7 +345,7 @@ static inline void initRos() {
   //rclc_add_parameter_description(&param_server, "param_int", "Second parameter", "Only even numbers");
   RCCHECK(rclc_add_parameter_constraint_integer(&param_server, "param_int", -10, 120, 2), ERR_UROS_PARAM);
 
-  //rclc_add_parameter_description(&param_server, "param3", "Third parameter", "");
+  //rclc_add_parameter_description(&param_server, "param_double", "Third parameter", "");
   RCCHECK(rclc_set_parameter_read_only(&param_server, "param_double", true), ERR_UROS_PARAM);
 
   bool param_bool;
