@@ -679,8 +679,8 @@ void logMsg(char* msg, uint8_t severity_level) {
 }
 
 int initLDS() {
-  Serial.print("LDS RX buffer size "); // default 128 hw + 256 sw
   Serial.println(LdSerial.setRxBufferSize(1024)); // must be before .begin()
+  Serial.print("LDS RX buffer size "); // default 128 hw + 256 sw
   lds.begin(LdSerial, LDS_SERIAL_BAUD);
   ledcSetup(0, 10000, 8);
   ledcAttachPin(YD_MOTOR_SCTP_PIN, 0);
@@ -693,7 +693,7 @@ int initLDS() {
   
   device_info deviceinfo;
   if (lds.getDeviceInfo(deviceinfo, 100) != RESULT_OK) {
-    Serial.println(F("lds.getDeviceInfo() error!"));
+    Serial.println(F("lds.getDeviceInfo() error! Is YDLidar X4 connected? to ESP32?"));
     return -1;
   }
 
