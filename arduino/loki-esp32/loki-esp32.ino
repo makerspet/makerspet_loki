@@ -23,6 +23,7 @@
 #include <rcl_interfaces/msg/log.h>
 #include <rmw_microros/rmw_microros.h>
 //#include <rmw_microros/discovery.h>
+#include <rclc_parameter/rclc_parameter.h>
 #include "drive.h"
 #include "ap.h"
 
@@ -44,6 +45,8 @@ rclc_support_t support;
 rcl_allocator_t allocator;
 rclc_executor_t executor;
 rcl_node_t node;
+
+rclc_parameter_server_t param_server;
 
 HardwareSerial LdSerial(2); // TX 17, RX 16
 YDLidar lds(scan_callback, serial_callback);
@@ -306,12 +309,90 @@ static inline void initRos() {
     ROSIDL_GET_MSG_TYPE_SUPPORT(rcl_interfaces, msg, Log),
     UROS_LOG_TOPIC_NAME), ERR_UROS_PUBSUB);
 
-  RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator),
-    ERR_UROS_EXEC);
+  // https://github.com/ros2/rclc/blob/humble/rclc_examples/src/example_parameter_server.c
+  // Request size limited to one parameter on Set, Get, Get types and Describe services.
+  // List parameter request has no prefixes enabled nor depth.
+  // Parameter description strings not allowed, rclc_add_parameter_description is disabled.
+  // RCLC_PARAMETER_MAX_STRING_LENGTH = 50
+  const rclc_parameter_options_t rclc_param_options = {
+      .notify_changed_over_dds = false,
+      .max_params = 1,
+      .allow_undeclared_parameters = false,
+      .low_mem_mode = true };
+  
+  //RCCHECK(rclc_parameter_server_init_default(&param_server, &node), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_server_init_with_option(&param_server, &node,
+    &rclc_param_options), ERR_UROS_PARAM);
+
+  RCCHECK(rclc_executor_init(&executor, &support.context,
+    RCLC_EXECUTOR_PARAMETER_SERVER_HANDLES + 1, &allocator), ERR_UROS_EXEC);
   RCCHECK(rclc_executor_add_subscription(&executor, &twist_sub,
     &twist_msg, &twist_sub_callback, ON_NEW_DATA), ERR_UROS_EXEC);
+  RCCHECK(rclc_executor_add_parameter_server(&executor, &param_server,
+    on_param_changed), ERR_UROS_EXEC);;
+
+  RCCHECK(rclc_add_parameter(&param_server, "param_bool", RCLC_PARAMETER_BOOL), ERR_UROS_PARAM);
+  RCCHECK(rclc_add_parameter(&param_server, "param_int", RCLC_PARAMETER_INT), ERR_UROS_PARAM);
+  RCCHECK(rclc_add_parameter(&param_server, "param_double", RCLC_PARAMETER_DOUBLE), ERR_UROS_PARAM);
+
+  RCCHECK(rclc_parameter_set_bool(&param_server, "param_bool", false), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_set_int(&param_server, "param_int", 10), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_set_double(&param_server, "param_double", 0.01), ERR_UROS_PARAM);
+
+  //rclc_add_parameter_description(&param_server, "param_int", "Second parameter", "Only even numbers");
+  RCCHECK(rclc_add_parameter_constraint_integer(&param_server, "param_int", -10, 120, 2), ERR_UROS_PARAM);
+
+  //rclc_add_parameter_description(&param_server, "param3", "Third parameter", "");
+  RCCHECK(rclc_set_parameter_read_only(&param_server, "param_double", true), ERR_UROS_PARAM);
+
+  bool param_bool;
+  int64_t param_int;
+  double param_double;
+
+  RCCHECK(rclc_parameter_get_bool(&param_server, "param_bool", &param_bool), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_get_int(&param_server, "param_int", &param_int), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_get_double(&param_server, "param_double", &param_double), ERR_UROS_PARAM);
 
   resetTelemMsg();
+}
+
+bool on_param_changed(const Parameter * old_param, const Parameter * new_param, void * context)
+{
+  (void) context;
+
+  if (old_param == NULL && new_param == NULL) {
+    Serial.println("old_param == NULL");
+    return false;
+  }
+  if (new_param == NULL) {
+    Serial.println("new_param == NULL");
+    return false;
+  }
+
+  Serial.print("Parameter ");
+  Serial.print(old_param->name.data);
+  Serial.print(" modified ");
+  switch (old_param->value.type) {
+    case RCLC_PARAMETER_BOOL:
+      Serial.print(old_param->value.bool_value);
+      Serial.print(" to ");
+      Serial.println(new_param->value.bool_value);
+      break;
+    case RCLC_PARAMETER_INT:
+      Serial.print(old_param->value.integer_value);
+      Serial.print(" to ");
+      Serial.println(new_param->value.integer_value);
+      break;
+    case RCLC_PARAMETER_DOUBLE:
+      Serial.print(old_param->value.double_value);
+      Serial.print(" to ");
+      Serial.println(new_param->value.double_value);
+      break;
+    default:
+      break;
+  }
+
+  return true;
 }
 
 static inline bool initWiFi(String ssid, String passw) {

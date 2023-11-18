@@ -44,6 +44,7 @@
 #define ERR_UROS_EXEC 8
 #define ERR_UROS_TIME_SYNC 9
 #define ERR_UROS_SPIN 10
+#define ERR_UROS_PARAM 11
 
 #define ERR_REBOOT_BLINK_CYCLES 3 // Blinki out an error a few times, then reboot
 #define LONG_BLINK_MS 1000
