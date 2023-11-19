@@ -1,10 +1,3 @@
-// Scan publishes, WiFi AP works
-
-//TODO detect micro-ros agent disconnect
-//TODO debug /odom NaN
-//TODO discover ROS2 PC automatically
-//  #define RMW_UXRCE_TRANSPORT_UDP
-
 #include "robot_config.h"
 #include "util.h"
 #include <WiFi.h>
@@ -12,8 +5,6 @@
 #include <micro_ros_kaia.h>
 #include <HardwareSerial.h>
 #include "YDLidar.h"
-//#include <sys/time.h>
-//#include "time.h"
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
@@ -322,8 +313,12 @@ static inline void initRos() {
       .low_mem_mode = true };
   
   //RCCHECK(rclc_parameter_server_init_default(&param_server, &node), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_server_init_with_option(&param_server, &node,
-    &rclc_param_options), ERR_UROS_PARAM);
+  temp_rc = rclc_parameter_server_init_with_option(&param_server, &node, &rclc_param_options);
+  if (temp_rc != RCL_RET_OK) {
+    Serial.print("Micro-ROS parameter server init failed.");
+    Serial.println("Make sure micro_ros_kaia library version is latest.");
+    error_loop(ERR_UROS_PARAM);
+  }
 
   RCCHECK(rclc_executor_init(&executor, &support.context,
     RCLC_EXECUTOR_PARAMETER_SERVER_HANDLES + 1, &allocator), ERR_UROS_EXEC);
@@ -334,27 +329,27 @@ static inline void initRos() {
   RCCHECK(rclc_executor_add_parameter_server(&executor, &param_server,
     on_param_changed), ERR_UROS_EXEC);;
 
-  RCCHECK(rclc_add_parameter(&param_server, "param_bool", RCLC_PARAMETER_BOOL), ERR_UROS_PARAM);
-  RCCHECK(rclc_add_parameter(&param_server, "param_int", RCLC_PARAMETER_INT), ERR_UROS_PARAM);
-  RCCHECK(rclc_add_parameter(&param_server, "param_double", RCLC_PARAMETER_DOUBLE), ERR_UROS_PARAM);
+  //RCCHECK(rclc_add_parameter(&param_server, "param_bool", RCLC_PARAMETER_BOOL), ERR_UROS_PARAM);
+  //RCCHECK(rclc_add_parameter(&param_server, "param_int", RCLC_PARAMETER_INT), ERR_UROS_PARAM);
+  RCCHECK(rclc_add_parameter(&param_server, UROS_PARAM_LDS_MOTOR_SPEED, RCLC_PARAMETER_DOUBLE), ERR_UROS_PARAM);
 
-  RCCHECK(rclc_parameter_set_bool(&param_server, "param_bool", false), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_set_int(&param_server, "param_int", 10), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_set_double(&param_server, "param_double", 0.01), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_set_bool(&param_server, "param_bool", false), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_set_int(&param_server, "param_int", 10), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_set_double(&param_server, "lds.motor_speed", YD_MOTOR_SPEED_DEFAULT), ERR_UROS_PARAM);
 
   //rclc_add_parameter_description(&param_server, "param_int", "Second parameter", "Only even numbers");
-  RCCHECK(rclc_add_parameter_constraint_integer(&param_server, "param_int", -10, 120, 2), ERR_UROS_PARAM);
+  //RCCHECK(rclc_add_parameter_constraint_integer(&param_server, "param_int", -10, 120, 2), ERR_UROS_PARAM);
 
   //rclc_add_parameter_description(&param_server, "param_double", "Third parameter", "");
-  RCCHECK(rclc_set_parameter_read_only(&param_server, "param_double", true), ERR_UROS_PARAM);
+  //RCCHECK(rclc_set_parameter_read_only(&param_server, "param_double", true), ERR_UROS_PARAM);
 
-  bool param_bool;
-  int64_t param_int;
-  double param_double;
+  //bool param_bool;
+  //int64_t param_int;
+  //double param_double;
 
-  RCCHECK(rclc_parameter_get_bool(&param_server, "param_bool", &param_bool), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_get_int(&param_server, "param_int", &param_int), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_get_double(&param_server, "param_double", &param_double), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_get_bool(&param_server, "param_bool", &param_bool), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_get_int(&param_server, "param_int", &param_int), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_get_double(&param_server, "param_double", &param_double), ERR_UROS_PARAM);
 
   resetTelemMsg();
 }
@@ -390,6 +385,11 @@ bool on_param_changed(const Parameter * old_param, const Parameter * new_param, 
       Serial.print(old_param->value.double_value);
       Serial.print(" to ");
       Serial.println(new_param->value.double_value);
+
+      if (strcmp(old_param->name.data, UROS_PARAM_LDS_MOTOR_SPEED) == 0) {
+        int16_t speed_int = round((float)(new_param->value.double_value) * 255);
+        setLdsMotorSpeed(speed_int);
+      }
       break;
     default:
       break;
@@ -771,7 +771,7 @@ int initLDS() {
 //  pinMode(YD_MOTOR_SCTP_PIN, INPUT);
 //  pinMode(YD_MOTOR_EN_PIN, OUTPUT);
 
-  setMotorSpeed(YD_MOTOR_SPEED_DEFAULT);
+  setLdsMotorSpeed(YD_MOTOR_SPEED_DEFAULT);
   enableLdsMotor(false);
   while (LdSerial.read() >= 0) {};
   

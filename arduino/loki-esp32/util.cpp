@@ -47,8 +47,8 @@ void printCurrentTime() {
   //Serial.println(strftime_buf);
 }
 
-void setMotorSpeed(int16_t speed) {
-  Serial.print(F("Motor speed "));
+void setLdsMotorSpeed(int16_t speed) {
+  Serial.print(F("LDS motor speed "));
   if (speed < 0) {
     pinMode(YD_MOTOR_SCTP_PIN, INPUT);
     Serial.println(F("default"));

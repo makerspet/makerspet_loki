@@ -14,7 +14,7 @@ void enableLdsMotor(bool enable);
 void blink(unsigned int delay_ms, unsigned int count);
 float absMin(float a, float b_abs);
 void printCurrentTime();
-void setMotorSpeed(int16_t speed);
+void setLdsMotorSpeed(int16_t speed);
 void twistToWheelSpeeds(float speed_lin_x, float speed_ang_z,
   float *speed_right, float *speed_left);
 void delayYield(unsigned long msec);
