@@ -1,0 +1,6 @@
+- v550
+  - brought handset forward by 7mm to improve center of gravity position
+  - shorter handset upper clamp to remove the handset without undoing the clamp
+  - upper plate handset stops to prevent the handset sliding out
+  - lowered the handset's upper clamp to accomodate smaller handsets
+- v533 beta release
