@@ -11,7 +11,7 @@
 #define LDS_MOTOR_PWM_PIN       15 // LDS motor speed control using PWM
 #define LDS_MOTOR_EN_PIN        19 // LDS motor enable pin (was 12)
 #define LDS_MOTOR_SPEED_DEFAULT -1 // tristate YDLidar X4 SCTP pin for default motor speed
-#define LDS_MOTOR_PWM_CHANNEL    0 // ESP32 PWM channel for LDS motor speed control
+#define LDS_MOTOR_PWM_CHANNEL    2 // ESP32 PWM channel for LDS motor speed control
 #define BAT_ADC_PIN             36
 
 // Micro-ROS config
