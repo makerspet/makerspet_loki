@@ -353,13 +353,15 @@ static inline void initRos() {
 
   //RCCHECK(rclc_parameter_set_bool(&param_server, "param_bool", false), ERR_UROS_PARAM);
   //RCCHECK(rclc_parameter_set_int(&param_server, "param_int", 10), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_set_double(&param_server, "lds.motor_speed", LDS_MOTOR_SPEED_DEFAULT), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_set_double(&param_server, UROS_PARAM_LDS_MOTOR_SPEED, LDS_MOTOR_SPEED_DEFAULT), ERR_UROS_PARAM);
 
   //rclc_add_parameter_description(&param_server, "param_int", "Second parameter", "Only even numbers");
   //RCCHECK(rclc_add_parameter_constraint_integer(&param_server, "param_int", -10, 120, 2), ERR_UROS_PARAM);
 
   //rclc_add_parameter_description(&param_server, "param_double", "Third parameter", "");
   //RCCHECK(rclc_set_parameter_read_only(&param_server, "param_double", true), ERR_UROS_PARAM);
+
+  RCCHECK(rclc_add_parameter_constraint_double(&param_server, UROS_PARAM_LDS_MOTOR_SPEED, -1.0, 1.0, 0), ERR_UROS_PARAM);
 
   //bool param_bool;
   //int64_t param_int;
