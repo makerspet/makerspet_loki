@@ -8,11 +8,11 @@ float absMin(float a, float b_abs) {
 }
 
 void enableLdsMotor(bool enable) {
-  int current_state = digitalRead(YD_MOTOR_EN_PIN);
+  int current_state = digitalRead(LDS_MOTOR_EN_PIN);
   int new_state = enable ? HIGH : LOW;
   if (current_state != new_state) {
-    digitalWrite(YD_MOTOR_EN_PIN, new_state);
-    Serial.print(F("Motor "));
+    digitalWrite(LDS_MOTOR_EN_PIN, new_state);
+    Serial.print(F("LDS motor "));
     Serial.println(enable ? F("enabled") : F("disabled"));
   }
 }
@@ -50,14 +50,14 @@ void printCurrentTime() {
 void setLdsMotorSpeed(int16_t speed) {
   Serial.print(F("LDS motor speed "));
   if (speed < 0) {
-    pinMode(YD_MOTOR_SCTP_PIN, INPUT);
+    pinMode(LDS_MOTOR_PWM_PIN, INPUT);
     Serial.println(F("default"));
     return;
   }
 
-  pinMode(YD_MOTOR_SCTP_PIN, OUTPUT);
+  pinMode(LDS_MOTOR_PWM_PIN, OUTPUT);
   speed = speed > 255 ? 255 : speed;
-  ledcWrite(YD_MOTOR_SCTP_PWM_CHANNEL, speed);
+  ledcWrite(LDS_MOTOR_PWM_CHANNEL, speed);
   Serial.println(speed);
 }
 

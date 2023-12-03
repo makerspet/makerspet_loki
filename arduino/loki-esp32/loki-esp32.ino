@@ -180,10 +180,10 @@ void twist_sub_callback(const void *msgin) {
 }
 
 void setMotorSpeeds(float ramp_target_rpm_right, float ramp_target_rpm_left) {
-  Serial.print("setRPM() ");
-  Serial.print(ramp_target_rpm_right);
-  Serial.print(" ");
-  Serial.println(ramp_target_rpm_left);
+  //Serial.print("setRPM() ");
+  //Serial.print(ramp_target_rpm_right);
+  //Serial.print(" ");
+  //Serial.println(ramp_target_rpm_left);
 
   drive.setRPM(MOTOR_RIGHT, ramp_target_rpm_right);
   drive.setRPM(MOTOR_LEFT, ramp_target_rpm_left);
@@ -236,8 +236,8 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);  
 
-  pinMode(YD_MOTOR_SCTP_PIN, INPUT);
-  pinMode(YD_MOTOR_EN_PIN, OUTPUT);
+  pinMode(LDS_MOTOR_PWM_PIN, INPUT);
+  pinMode(LDS_MOTOR_EN_PIN, OUTPUT);
   enableLdsMotor(false);
 
   if (!initWiFi(getSSID(), getPassw())) {
@@ -353,7 +353,7 @@ static inline void initRos() {
 
   //RCCHECK(rclc_parameter_set_bool(&param_server, "param_bool", false), ERR_UROS_PARAM);
   //RCCHECK(rclc_parameter_set_int(&param_server, "param_int", 10), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_set_double(&param_server, "lds.motor_speed", YD_MOTOR_SPEED_DEFAULT), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_set_double(&param_server, "lds.motor_speed", LDS_MOTOR_SPEED_DEFAULT), ERR_UROS_PARAM);
 
   //rclc_add_parameter_description(&param_server, "param_int", "Second parameter", "Only even numbers");
   //RCCHECK(rclc_add_parameter_constraint_integer(&param_server, "param_int", -10, 120, 2), ERR_UROS_PARAM);
@@ -619,6 +619,9 @@ void spinPing() {
   if (step_time_us >= ping_pub_period_us) {
     // timeout_ms, attempts
     rmw_ret_t rc = rmw_uros_ping_agent(1, 1);
+    //int battery_level = analogRead(BAT_ADC_PIN);
+    //Serial.print("Battery level ");
+    //Serial.println(battery_level);
     ping_prev_pub_time_us = time_now_us;
     Serial.println(rc == RCL_RET_OK ? "Ping OK" : "Ping error");
   }
@@ -785,17 +788,17 @@ int initLDS() {
   Serial.print("LDS RX buffer size "); // default 128 hw + 256 sw
   lds.begin(LdSerial, LDS_SERIAL_BAUD);
   ledcSetup(0, 10000, 8);
-  ledcAttachPin(YD_MOTOR_SCTP_PIN, 0);
-//  pinMode(YD_MOTOR_SCTP_PIN, INPUT);
-//  pinMode(YD_MOTOR_EN_PIN, OUTPUT);
+  ledcAttachPin(LDS_MOTOR_PWM_PIN, 0);
+//  pinMode(LDS_MOTOR_PWM_PIN, INPUT);
+//  pinMode(LDS_MOTOR_EN_PIN, OUTPUT);
 
-  setLdsMotorSpeed(YD_MOTOR_SPEED_DEFAULT);
+  setLdsMotorSpeed(LDS_MOTOR_SPEED_DEFAULT);
   enableLdsMotor(false);
   while (LdSerial.read() >= 0) {};
   
   device_info deviceinfo;
   if (lds.getDeviceInfo(deviceinfo, 100) != RESULT_OK) {
-    Serial.println(F("lds.getDeviceInfo() error! Is YDLidar X4 connected? to ESP32?"));
+    Serial.println(F("lds.getDeviceInfo() error! Is YDLidar X4 connected to ESP32?"));
     return -1;
   }
 
@@ -868,7 +871,7 @@ int initLDS() {
     Serial.println(F("lds.getHealth() error!"));
     return -1;
   } else {
-    Serial.print(F("YDLIDAR running correctly! The health status: "));
+    Serial.print(F("YDLidar X4 running correctly! The health status: "));
     Serial.println(healthinfo.status == 0 ? F("OK") : F("bad"));
     if (lds.startScan() != RESULT_OK) {
       Serial.println(F("lds.startScan() error!"));

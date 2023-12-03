@@ -2,17 +2,17 @@
 #define ROBOT_CONFIG
 
 // Motors config
-#define WHEEL_DIA (2*33.5e-3) // meters
-#define WHEEL_BASE (159.063*1e-3) // wheel base, meters
-#define MAX_WHEEL_ACCEL 2.0   // wheel vs floor m2/sec
+#define WHEEL_DIA (2*33.5e-3)      // meters
+#define WHEEL_BASE (159.063*1e-3)  // wheel base, meters
+#define MAX_WHEEL_ACCEL 2.0        // wheel vs floor m2/sec
 
 // ESP32 pin assignment
 #define LED_PIN 2
-#define YD_MOTOR_SCTP_PIN 15 // 2 PWM pin for control the speed of YDLIDAR's motor. 
-#define YD_MOTOR_EN_PIN   12 // 15 The ENABLE PIN for YDLIDAR's motor                  
-#define YD_MOTOR_SPEED 255  // LEAVE DISCONNECTED
-#define YD_MOTOR_SPEED_DEFAULT -1  // disconnect SCTP pin for default motor speed
-#define YD_MOTOR_SCTP_PWM_CHANNEL 0  // ESP32 PWM channel
+#define LDS_MOTOR_PWM_PIN       15 // LDS motor speed control using PWM
+#define LDS_MOTOR_EN_PIN        19 // LDS motor enable pin (was 12)
+#define LDS_MOTOR_SPEED_DEFAULT -1 // tristate YDLidar X4 SCTP pin for default motor speed
+#define LDS_MOTOR_PWM_CHANNEL    0 // ESP32 PWM channel for LDS motor speed control
+#define BAT_ADC_PIN             36
 
 // Micro-ROS config
 #define UROS_CLIENT_KEY 0xCA1AA100
