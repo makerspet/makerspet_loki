@@ -1,1 +1,1 @@
-Please find PCB files here https://github.com/makerspet/makerspet_snoopy/kicad/.
+Please find PCB files here https://github.com/makerspet/makerspet_snoopy/tree/humble/kicad.
