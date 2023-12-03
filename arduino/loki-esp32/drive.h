@@ -21,12 +21,12 @@
 #define MOTOR_COUNT                (MOTOR_RIGHT+1)
 
 #define MOT_PWM_LEFT_PIN           33
-#define MOT_CW_LEFT_PIN            32
+#define MOT_CW_LEFT_PIN            23 // was 32
 #define MOT_FG_LEFT_PIN            34
 
 #define MOT_PWM_RIGHT_PIN          13 
 #define MOT_CW_RIGHT_PIN           25
-#define MOT_FG_RIGHT_PIN           27
+#define MOT_FG_RIGHT_PIN           35 // was 27
 
 #define MOTOR_WHEEL_MAX_RPM        180 // rated 145, no-load 200
 

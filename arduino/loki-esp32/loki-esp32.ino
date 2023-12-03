@@ -1,9 +1,16 @@
-// Scan publishes, WiFi AP works
-
-//TODO detect micro-ros agent disconnect
-//TODO debug /odom NaN
-//TODO discover ROS2 PC automatically
-//  #define RMW_UXRCE_TRANSPORT_UDP
+// Copyright 2023 REMAKE AI
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "robot_config.h"
 #include "util.h"
@@ -12,8 +19,6 @@
 #include <micro_ros_kaia.h>
 #include <HardwareSerial.h>
 #include "YDLidar.h"
-//#include <sys/time.h>
-//#include "time.h"
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
@@ -26,6 +31,10 @@
 #include <rclc_parameter/rclc_parameter.h>
 #include "drive.h"
 #include "ap.h"
+
+#if !defined(IS_MICRO_ROS_KAIA_MIN_VERSION) || !IS_MICRO_ROS_KAIA_MIN_VERSION(2,0,7,3)
+#error "Please upgrade micro_ros_kaia library version"
+#endif
 
 #define RCCHECK(fn,E) { rcl_ret_t temp_rc = fn; \
   if((temp_rc != RCL_RET_OK)){error_loop((E));}}
@@ -171,10 +180,10 @@ void twist_sub_callback(const void *msgin) {
 }
 
 void setMotorSpeeds(float ramp_target_rpm_right, float ramp_target_rpm_left) {
-  Serial.print("setRPM() ");
-  Serial.print(ramp_target_rpm_right);
-  Serial.print(" ");
-  Serial.println(ramp_target_rpm_left);
+  //Serial.print("setRPM() ");
+  //Serial.print(ramp_target_rpm_right);
+  //Serial.print(" ");
+  //Serial.println(ramp_target_rpm_left);
 
   drive.setRPM(MOTOR_RIGHT, ramp_target_rpm_right);
   drive.setRPM(MOTOR_LEFT, ramp_target_rpm_left);
@@ -227,8 +236,8 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);  
 
-  pinMode(YD_MOTOR_SCTP_PIN, INPUT);
-  pinMode(YD_MOTOR_EN_PIN, OUTPUT);
+  pinMode(LDS_MOTOR_PWM_PIN, INPUT);
+  pinMode(LDS_MOTOR_EN_PIN, OUTPUT);
   enableLdsMotor(false);
 
   if (!initWiFi(getSSID(), getPassw())) {
@@ -322,8 +331,12 @@ static inline void initRos() {
       .low_mem_mode = true };
   
   //RCCHECK(rclc_parameter_server_init_default(&param_server, &node), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_server_init_with_option(&param_server, &node,
-    &rclc_param_options), ERR_UROS_PARAM);
+  temp_rc = rclc_parameter_server_init_with_option(&param_server, &node, &rclc_param_options);
+  if (temp_rc != RCL_RET_OK) {
+    Serial.print("Micro-ROS parameter server init failed.");
+    Serial.println("Make sure micro_ros_kaia library version is latest.");
+    error_loop(ERR_UROS_PARAM);
+  }
 
   RCCHECK(rclc_executor_init(&executor, &support.context,
     RCLC_EXECUTOR_PARAMETER_SERVER_HANDLES + 1, &allocator), ERR_UROS_EXEC);
@@ -334,27 +347,29 @@ static inline void initRos() {
   RCCHECK(rclc_executor_add_parameter_server(&executor, &param_server,
     on_param_changed), ERR_UROS_EXEC);;
 
-  RCCHECK(rclc_add_parameter(&param_server, "param_bool", RCLC_PARAMETER_BOOL), ERR_UROS_PARAM);
-  RCCHECK(rclc_add_parameter(&param_server, "param_int", RCLC_PARAMETER_INT), ERR_UROS_PARAM);
-  RCCHECK(rclc_add_parameter(&param_server, "param_double", RCLC_PARAMETER_DOUBLE), ERR_UROS_PARAM);
+  //RCCHECK(rclc_add_parameter(&param_server, "param_bool", RCLC_PARAMETER_BOOL), ERR_UROS_PARAM);
+  //RCCHECK(rclc_add_parameter(&param_server, "param_int", RCLC_PARAMETER_INT), ERR_UROS_PARAM);
+  RCCHECK(rclc_add_parameter(&param_server, UROS_PARAM_LDS_MOTOR_SPEED, RCLC_PARAMETER_DOUBLE), ERR_UROS_PARAM);
 
-  RCCHECK(rclc_parameter_set_bool(&param_server, "param_bool", false), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_set_int(&param_server, "param_int", 10), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_set_double(&param_server, "param_double", 0.01), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_set_bool(&param_server, "param_bool", false), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_set_int(&param_server, "param_int", 10), ERR_UROS_PARAM);
+  RCCHECK(rclc_parameter_set_double(&param_server, UROS_PARAM_LDS_MOTOR_SPEED, LDS_MOTOR_SPEED_DEFAULT), ERR_UROS_PARAM);
 
   //rclc_add_parameter_description(&param_server, "param_int", "Second parameter", "Only even numbers");
-  RCCHECK(rclc_add_parameter_constraint_integer(&param_server, "param_int", -10, 120, 2), ERR_UROS_PARAM);
+  //RCCHECK(rclc_add_parameter_constraint_integer(&param_server, "param_int", -10, 120, 2), ERR_UROS_PARAM);
 
   //rclc_add_parameter_description(&param_server, "param_double", "Third parameter", "");
-  RCCHECK(rclc_set_parameter_read_only(&param_server, "param_double", true), ERR_UROS_PARAM);
+  //RCCHECK(rclc_set_parameter_read_only(&param_server, "param_double", true), ERR_UROS_PARAM);
 
-  bool param_bool;
-  int64_t param_int;
-  double param_double;
+  RCCHECK(rclc_add_parameter_constraint_double(&param_server, UROS_PARAM_LDS_MOTOR_SPEED, -1.0, 1.0, 0), ERR_UROS_PARAM);
 
-  RCCHECK(rclc_parameter_get_bool(&param_server, "param_bool", &param_bool), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_get_int(&param_server, "param_int", &param_int), ERR_UROS_PARAM);
-  RCCHECK(rclc_parameter_get_double(&param_server, "param_double", &param_double), ERR_UROS_PARAM);
+  //bool param_bool;
+  //int64_t param_int;
+  //double param_double;
+
+  //RCCHECK(rclc_parameter_get_bool(&param_server, "param_bool", &param_bool), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_get_int(&param_server, "param_int", &param_int), ERR_UROS_PARAM);
+  //RCCHECK(rclc_parameter_get_double(&param_server, "param_double", &param_double), ERR_UROS_PARAM);
 
   resetTelemMsg();
 }
@@ -390,6 +405,11 @@ bool on_param_changed(const Parameter * old_param, const Parameter * new_param, 
       Serial.print(old_param->value.double_value);
       Serial.print(" to ");
       Serial.println(new_param->value.double_value);
+
+      if (strcmp(old_param->name.data, UROS_PARAM_LDS_MOTOR_SPEED) == 0) {
+        int16_t speed_int = round((float)(new_param->value.double_value) * 255);
+        setLdsMotorSpeed(speed_int);
+      }
       break;
     default:
       break;
@@ -601,6 +621,9 @@ void spinPing() {
   if (step_time_us >= ping_pub_period_us) {
     // timeout_ms, attempts
     rmw_ret_t rc = rmw_uros_ping_agent(1, 1);
+    //int battery_level = analogRead(BAT_ADC_PIN);
+    //Serial.print("Battery level ");
+    //Serial.println(battery_level);
     ping_prev_pub_time_us = time_now_us;
     Serial.println(rc == RCL_RET_OK ? "Ping OK" : "Ping error");
   }
@@ -767,17 +790,17 @@ int initLDS() {
   Serial.print("LDS RX buffer size "); // default 128 hw + 256 sw
   lds.begin(LdSerial, LDS_SERIAL_BAUD);
   ledcSetup(0, 10000, 8);
-  ledcAttachPin(YD_MOTOR_SCTP_PIN, 0);
-//  pinMode(YD_MOTOR_SCTP_PIN, INPUT);
-//  pinMode(YD_MOTOR_EN_PIN, OUTPUT);
+  ledcAttachPin(LDS_MOTOR_PWM_PIN, 0);
+//  pinMode(LDS_MOTOR_PWM_PIN, INPUT);
+//  pinMode(LDS_MOTOR_EN_PIN, OUTPUT);
 
-  setMotorSpeed(YD_MOTOR_SPEED_DEFAULT);
+  setLdsMotorSpeed(LDS_MOTOR_SPEED_DEFAULT);
   enableLdsMotor(false);
   while (LdSerial.read() >= 0) {};
   
   device_info deviceinfo;
   if (lds.getDeviceInfo(deviceinfo, 100) != RESULT_OK) {
-    Serial.println(F("lds.getDeviceInfo() error! Is YDLidar X4 connected? to ESP32?"));
+    Serial.println(F("lds.getDeviceInfo() error! Is YDLidar X4 connected to ESP32?"));
     return -1;
   }
 
@@ -850,7 +873,7 @@ int initLDS() {
     Serial.println(F("lds.getHealth() error!"));
     return -1;
   } else {
-    Serial.print(F("YDLIDAR running correctly! The health status: "));
+    Serial.print(F("YDLidar X4 running correctly! The health status: "));
     Serial.println(healthinfo.status == 0 ? F("OK") : F("bad"));
     if (lds.startScan() != RESULT_OK) {
       Serial.println(F("lds.startScan() error!"));

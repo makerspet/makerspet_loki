@@ -1,20 +1,22 @@
-# [Kaia.ai ](https://kaia.ai) Arduino firmware
+# Robot firmware
 
-[Kaia.ai](https://kaiaai) is a platform for 3D-printable pet robots. Please sign up for an early launch invite [here](https://remake.ai).
+This repo contains:
+- Arduino ESP32 robot firmware (for the ESP32 breakout board)
+- extension module firmware - Raspberry Pi Pico located in the robot's (lower) body
+- extension module firmware - Raspberry Pi Pico located in the robot's head
 
-This repo contains Arduino ESP32 firmware for [Kaia.ai](https://kaia.ai) home pet robots.
-This firmware uses a Micro-ROS [library](https://github.com/kaiaai/micro_ros_arduino_kaia) for Arduino.
+## Firmware release notes
+- Arduino ESP32 [release notes](/arduino/loki-esp32/README.md)
 
-## Installation
-- Download the Kaia.ai firmware project code from this [repo](https://github.com/kaiaai/arduino_fw)
-- Install the Micro-ROS Kaia.ai library using Arduino Library Manager. Learn more [here](https://github.com/kaiaai/micro_ros_arduino_kaia)
-- open the downloaded `kaia_esp32.ino` project file in your Arduino IDE
-- In your Arduino IDE, configure Tools -> Board as "ESP32 Dev Module" and leave the board settings at their defaults
-- Cick the Arduino IDE build button. The project should build successfully
-- Upload the compiled firmware to your ESP32 Dev Module
+## Firmware setup instructions
 
-## Modding the robot and its firmware
-- Start with an existing Kaia.ai robot, e.g. [Snoopy](https://github.com/kaiaai/kaia_descriptions/)
-- If needed, mod the robot's 3D-printable robot body. You can use [Snoopy's design](https://github.com/kaiaai/3D_printables/) as a starting point
-- If needed, mod the robot's description (i.e. sofware configuration and model), see [Snoopy](https://github.com/kaiaai/kaia_descriptions/)
-- If needed, mod the robot's firmware - use this repo as a starting point
+### ESP32 breakout board
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=XOc5kCE3MC0" target="_blank">
+ <img src="http://img.youtube.com/vi/XOc5kCE3MC0/maxresdefault.jpg" alt="Watch the one-time PC setup, firmware upload instructions video" width="720" height="405" border="10" />
+</a>
+
+### Raspberry Pi Pico - body
+This firmware is work in progress.
+
+### Raspberry Pi Pico - head
+This firmware is work in progress.
