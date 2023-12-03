@@ -408,7 +408,12 @@ bool on_param_changed(const Parameter * old_param, const Parameter * new_param, 
 
       if (strcmp(old_param->name.data, UROS_PARAM_LDS_MOTOR_SPEED) == 0) {
         int16_t speed_int = round((float)(new_param->value.double_value) * 255);
-        setLdsMotorSpeed(speed_int);
+        if (speed_int == 0) {
+          enableLdsMotor(false);
+        } else {
+          enableLdsMotor(true);
+          setLdsMotorSpeed(speed_int);
+        }
       }
       break;
     default:
