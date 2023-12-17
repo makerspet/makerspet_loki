@@ -28,11 +28,35 @@
 #define MOT_CW_RIGHT_PIN           25
 #define MOT_FG_RIGHT_PIN           35 // was 27
 
-#define MOTOR_WHEEL_MAX_RPM        180 // rated 145, no-load 200
 
-// 1:45 gear ratio * 6 pulses/cycle * 2 edges
-#define WHEEL_ENCODER_TPR         (45.0*6*2) // ticks per revolution
+// Chihai Motor CHR-GM25-BL2418 24V 200RPM max
+#define MOTOR_MAX_RPM              200  // no-load
+#define MOTOR_RATED_RPM            145
+#define MOTOR_GEAR_RATIO           45.0 // gearbox reduction ratio
+#define MOTOR_ENCODER_PPR          6    // pulses per revolution
 
+// Chihai Motor CHR-GM25-BL2418 24V 260RPM max
+//#define MOTOR_MAX_RPM              200  // no-load
+//#define MOTOR_RATED_RPM            190
+//#define MOTOR_GEAR_RATIO           34.0 // gearbox reduction ratio
+//#define MOTOR_ENCODER_PPR          6    // pulses per revolution
+
+// Chihai Motor CHR-GM25-BL2418 24V 450 RPM max
+//#define MOTOR_MAX_RPM              450  // no-load
+//#define MOTOR_RATED_RPM            325
+//#define MOTOR_GEAR_RATIO           20.0 // gearbox reduction ratio
+//#define MOTOR_ENCODER_PPR          6    // pulses per revolution
+
+// Far Along JGA25-BL2418 24V 245RPM max
+//#define MOTOR_MAX_RPM              245  // no-load
+//#define MOTOR_RATED_RPM            185
+//#define MOTOR_GEAR_RATIO           35.0 // gearbox reduction ratio
+//#define MOTOR_ENCODER_PPR          18   // pulses per revolution
+
+
+#define MOTOR_WHEEL_MAX_RPM        (0.9*MOTOR_MAX_RPM)
+#define WHEEL_ENCODER_TPR          (MOTOR_GEAR_RATIO*MOTOR_ENCODER_PPR*2)
+                                   // ticks per revolution, 2 edges per pulse
 #define FLIP_ROTATION              true
 
 typedef void (*logFuncT)(char*);
