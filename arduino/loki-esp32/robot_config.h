@@ -7,9 +7,9 @@
 #define MAX_WHEEL_ACCEL 2.0        // wheel vs floor m2/sec
 
 // ESP32 pin assignment
-#define LED_PIN 2
+#define LED_PIN                  2 // ESP32 on-board LED
 #define LDS_MOTOR_PWM_PIN       15 // LDS motor speed control using PWM
-#define LDS_MOTOR_EN_PIN        19 // LDS motor enable pin (was 12)
+#define LDS_EN_PIN              19 // LDS enable pin (was 12)
 #define LDS_MOTOR_SPEED_DEFAULT -1 // tristate YDLidar X4 SCTP pin for default motor speed
 #define LDS_MOTOR_PWM_CHANNEL    2 // ESP32 PWM channel for LDS motor speed control
 #define BAT_ADC_PIN             36
@@ -27,8 +27,10 @@
 #define UROS_PARAM_LDS_MOTOR_SPEED "lds.motor_speed"
 
 #define JOINTS_LEN (MOTOR_COUNT)
-#define LDS_BUF_LEN 400
+#define LDS_BUF_LEN     400
 #define LDS_SERIAL_BAUD 128000  // YDLIDAR X4
+#define LDS_PWM_FREQ    10000
+#define LDS_PWM_BITS    8
 
 // WiFi config
 #define WIFI_CONN_TIMEOUT_SEC 30

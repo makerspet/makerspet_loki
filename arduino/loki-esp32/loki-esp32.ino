@@ -789,10 +789,8 @@ int initLDS() {
   Serial.println(LdSerial.setRxBufferSize(1024)); // must be before .begin()
   Serial.print("LDS RX buffer size "); // default 128 hw + 256 sw
   lds.begin(LdSerial, LDS_SERIAL_BAUD);
-  ledcSetup(0, 10000, 8);
-  ledcAttachPin(LDS_MOTOR_PWM_PIN, 0);
-//  pinMode(LDS_MOTOR_PWM_PIN, INPUT);
-//  pinMode(LDS_MOTOR_EN_PIN, OUTPUT);
+  ledcSetup(LDS_MOTOR_PWM_CHANNEL, LDS_PWM_FREQ 10000, LDS_PWM_BITS8);
+  ledcAttachPin(LDS_MOTOR_PWM_PIN, LDS_MOTOR_PWM_CHANNEL);
 
   setLdsMotorSpeed(LDS_MOTOR_SPEED_DEFAULT);
   enableLdsMotor(false);

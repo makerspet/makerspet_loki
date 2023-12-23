@@ -2,7 +2,6 @@
 #define KAIA_DRIVE_H_
 
 #include <math.h>
-
 #include <Arduino.h>
 #include <PID_Timed.h>
 
@@ -52,6 +51,12 @@
 //#define MOTOR_RATED_RPM            185
 //#define MOTOR_GEAR_RATIO           35.0 // gearbox reduction ratio
 //#define MOTOR_ENCODER_PPR          18   // pulses per revolution
+
+// AliExpress China motor store JGA25-BL2418 24V 408RPM max
+//#define MOTOR_MAX_RPM              408  // no-load
+//#define MOTOR_RATED_RPM            308
+//#define MOTOR_GEAR_RATIO           21.3 // gearbox reduction ratio
+//#define MOTOR_ENCODER_PPR          6    // pulses per revolution; TODO check
 
 
 #define MOTOR_WHEEL_MAX_RPM        (0.9*MOTOR_MAX_RPM)
