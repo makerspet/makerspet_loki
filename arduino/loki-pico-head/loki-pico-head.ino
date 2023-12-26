@@ -55,12 +55,12 @@ void loop() {
   Serial.print(base);
   Serial.print(" ");
 
-  leftServo.write(25);
+  leftServo.write(70);
 
   for (int i = 0; i < 500; i++) {
     int v = analogRead(ADC3_PIN);
     int delta = v - base;
-    if (abs(delta) > 7) {
+    if (abs(delta) > 15) {
       Serial.print(i);
       Serial.print(":");
       Serial.print(delta);
