@@ -22,6 +22,8 @@ void I2C_RxHandler(int numBytes) {
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(FAN_EN_PIN, OUTPUT);
+
   Serial.begin(115200);
   delay(2000);
   
@@ -43,20 +45,27 @@ void setup() {
 }
 
 void loop() {
+//  byte fan_pwm = 0;
+
   // put your main code here, to run repeatedly:
   digitalWrite(LED_BUILTIN, HIGH);
-  leftServo.write(0);
+  digitalWrite(FAN_EN_PIN, HIGH);
+//  leftServo.write(0);
 //  rightServo.write(90);
 //  extServo.write(90);
-    delay(500);
+    delay(1500);
 
   digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(FAN_EN_PIN, LOW);
   int base = analogRead(ADC3_PIN);
   Serial.print(base);
   Serial.print(" ");
 
-  leftServo.write(70);
+//  leftServo.write(70);
+//  analogWrite(FAN_EN_PIN, fan_pwm);
+//  fan_pwm += 32;
 
+/*
   for (int i = 0; i < 500; i++) {
     int v = analogRead(ADC3_PIN);
     int delta = v - base;
@@ -68,6 +77,8 @@ void loop() {
     }
     delay(1);
   }
+*/
+  delay(1500);
   Serial.println();
 
 //float analogReadTemp(float vref = 3.3f)
