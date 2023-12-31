@@ -4,6 +4,8 @@ A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) so
 
 3D print, build, run and mod your own home pet robot! Please learn more at [Maker's Pet](https://makerspet.com).
 
+UPDATE: Loki is now compatible with LDS02RR (~$15 off AliExpress including shipping) from used Xiaomi 1st-generation robot vacuum cleaners. Please see more in our [FB group](https://www.facebook.com/groups/243730868651472/).
+
 ![Loki cropped](https://github.com/makerspet/makerspet_loki/assets/143911662/9e3857b0-df87-4fda-9d94-bfc53fed399d)
 
 ## Assembly instructions video
