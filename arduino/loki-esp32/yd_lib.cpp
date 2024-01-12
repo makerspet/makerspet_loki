@@ -6,9 +6,9 @@
  *  http://www.eaibot.com
  * 
  */
-#include "YDLidar.h"
+#include "yd_lib.h"
 
-YDLidar::YDLidar() : _bined_serialdev(NULL)
+YDLidarX4::YDLidarX4() : _bined_serialdev(NULL)
 {
   scan_callback = NULL;
   serial_callback = NULL;
@@ -20,22 +20,22 @@ YDLidar::YDLidar() : _bined_serialdev(NULL)
   //point.intervalSampleAngle = 0;
 }
 
-void YDLidar::setScanPointCallback(ScanPointCallback scan_callback) {
+void YDLidarX4::setScanPointCallback(YdScanPointCallback scan_callback) {
   this->scan_callback = scan_callback;
 }
 
-void YDLidar::setSerialCharCallback(SerialCharCallback serial_callback) {
+void YDLidarX4::setSerialCharCallback(YdSerialCharCallback serial_callback) {
   this->serial_callback = serial_callback;  
 }
 
 
-YDLidar::~YDLidar()
+YDLidarX4::~YDLidarX4()
 {
   end();
 }
 
 // open the given serial interface and try to connect to the YDLIDAR
-bool YDLidar::begin(HardwareSerial &serialobj,uint32_t baudrate)
+bool YDLidarX4::begin(HardwareSerial &serialobj,uint32_t baudrate)
 {
     if (isOpen()) {
       end(); 
@@ -48,7 +48,7 @@ bool YDLidar::begin(HardwareSerial &serialobj,uint32_t baudrate)
 }
 
 // close the currently opened serial interface
-void YDLidar::end(void)
+void YDLidarX4::end(void)
 {
     if (isOpen()) {
        _bined_serialdev->end();
@@ -58,20 +58,20 @@ void YDLidar::end(void)
 
 
 // check whether the serial interface is opened
-bool YDLidar::isOpen(void)
+bool YDLidarX4::isOpen(void)
 {
     return _bined_serialdev?true:false; 
 }
 
 // ask the YDLIDAR for its device health
 
-result_t YDLidar::getHealth(device_health & health, uint32_t timeout) {
+result_t YDLidarX4::getHealth(yd_device_health & health, uint32_t timeout) {
     result_t  ans;
   uint8_t  recvPos = 0;
     uint32_t currentTs = millis();
     uint32_t remainingtime;
     uint8_t *infobuf = (uint8_t*)&health;
-  lidar_ans_header response_header;
+  yd_lidar_ans_header response_header;
   if (!isOpen()) {
     return RESULT_FAIL;
   }
@@ -92,7 +92,7 @@ result_t YDLidar::getHealth(device_health & health, uint32_t timeout) {
       return RESULT_FAIL;
     }
 
-    if (response_header.size < sizeof(device_health)) {
+    if (response_header.size < sizeof(yd_device_health)) {
       return RESULT_FAIL;
     }
 
@@ -101,7 +101,7 @@ result_t YDLidar::getHealth(device_health & health, uint32_t timeout) {
             if (currentbyte<0) continue;    
             infobuf[recvPos++] = currentbyte;
 
-            if (recvPos == sizeof(device_health)) {
+            if (recvPos == sizeof(yd_device_health)) {
                 return RESULT_OK;
             }
         }
@@ -111,13 +111,13 @@ result_t YDLidar::getHealth(device_health & health, uint32_t timeout) {
 
 
 // ask the YDLIDAR for its device info 
-result_t YDLidar::getDeviceInfo(device_info & info, uint32_t timeout) {
+result_t YDLidarX4::getDeviceInfo(yd_device_info & info, uint32_t timeout) {
     result_t  ans;
   uint8_t  recvPos = 0;
     uint32_t currentTs = millis();
     uint32_t remainingtime;
     uint8_t *infobuf = (uint8_t*)&info;
-  lidar_ans_header response_header;
+  yd_lidar_ans_header response_header;
   if (!isOpen()) {
     return RESULT_FAIL;
   }
@@ -138,7 +138,7 @@ result_t YDLidar::getDeviceInfo(device_info & info, uint32_t timeout) {
       return RESULT_FAIL;
     }
 
-    if (response_header.size < sizeof(lidar_ans_header)) {
+    if (response_header.size < sizeof(yd_lidar_ans_header)) {
       return RESULT_FAIL;
     }
 
@@ -147,7 +147,7 @@ result_t YDLidar::getDeviceInfo(device_info & info, uint32_t timeout) {
             if (currentbyte<0) continue;    
             infobuf[recvPos++] = currentbyte;
 
-            if (recvPos == sizeof(device_info)) {
+            if (recvPos == sizeof(yd_device_info)) {
                 return RESULT_OK;
             }
         }
@@ -157,7 +157,7 @@ result_t YDLidar::getDeviceInfo(device_info & info, uint32_t timeout) {
 }
 
 // stop the scanPoint operation
-result_t YDLidar::stop(void)
+result_t YDLidarX4::stop(void)
 {
     if (!isOpen()) return RESULT_FAIL;
     result_t ans = sendCommand(LIDAR_CMD_FORCE_STOP,NULL,0);
@@ -165,7 +165,7 @@ result_t YDLidar::stop(void)
 }
 
 // start the scanPoint operation
-result_t YDLidar::startScan(bool force, uint32_t timeout ) {
+result_t YDLidarX4::startScan(bool force, uint32_t timeout ) {
     result_t ans;
 
     if (!isOpen()) return RESULT_FAIL;
@@ -178,7 +178,7 @@ result_t YDLidar::startScan(bool force, uint32_t timeout ) {
     return ans;
   }
 
-  lidar_ans_header response_header;
+  yd_lidar_ans_header response_header;
   if ((ans = waitResponseHeader(&response_header, timeout)) != RESULT_OK) {
     return ans;
   }
@@ -187,7 +187,7 @@ result_t YDLidar::startScan(bool force, uint32_t timeout ) {
     return RESULT_FAIL;
   }
 
-  if (response_header.size < sizeof(node_info)) {
+  if (response_header.size < sizeof(yd_node_info)) {
     return RESULT_FAIL;
   }
     }
@@ -195,14 +195,14 @@ result_t YDLidar::startScan(bool force, uint32_t timeout ) {
 }
 
 // wait scan data
-result_t YDLidar::waitScanDot() {
+result_t YDLidarX4::waitScanDot() {
   static int recvPos = 0;
   static uint8_t package_Sample_Num = 0;
   static int package_recvPos = 0;
   static int package_sample_sum = 0;
   static int currentByte = 0;
 
-  static node_package package;
+  static yd_node_package package;
   static uint8_t *packageBuffer = (uint8_t*)&package.package_Head;
 
   static uint16_t package_Sample_Index = 0;
@@ -231,7 +231,7 @@ result_t YDLidar::waitScanDot() {
   // Each packet has a Start and End (absolute) angles
   if(package_Sample_Index == 0) {
     
-    // Read in, parse the packet header: first PackagePaidBytes=10 bytes
+    // Read in, parse the packet header: first PACKAGE_PAID_BYTES=10 bytes
     package_Sample_Num = 0;
     package_recvPos = 0;
     //uint32_t waitTime;
@@ -264,7 +264,7 @@ state1:
         break;
       case 2:
         SampleNumlAndCTCal = currentByte;
-        if ((currentByte != CT_Normal) && (currentByte != CT_RingStart)){ 
+        if ((currentByte != YD_CT_NORMAL) && (currentByte != YD_CT_RING_START)){ 
           recvPos = 0;
           continue;
         }
@@ -323,7 +323,7 @@ state1:
       }     
       packageBuffer[recvPos++] = currentByte;
 
-      if (recvPos  == PackagePaidBytes ){
+      if (recvPos  == PACKAGE_PAID_BYTES ){
         package_recvPos = recvPos;
         break;        
 
@@ -331,7 +331,7 @@ state1:
     }
 
     // Read in the rest of the packet, i.e. samples
-    if(PackagePaidBytes == recvPos){
+    if(PACKAGE_PAID_BYTES == recvPos){
       //startTs = millis();
       recvPos = 0;
       package_sample_sum = package_Sample_Num<<1;
@@ -382,13 +382,13 @@ state2:
   while(true) {
   
     uint8_t package_CT;
-    node_info node;
+    yd_node_info node;
   
     package_CT = package.package_CT;    
-    if(package_CT == CT_Normal){
-      node.sync_quality = Node_Default_Quality + Node_NotSync;
+    if(package_CT == YD_CT_NORMAL){
+      node.sync_quality = NODE_DEFAULT_QUALITY + NODE_NOT_SYNC;
     } else{
-      node.sync_quality = Node_Default_Quality + Node_Sync;
+      node.sync_quality = NODE_DEFAULT_QUALITY + NODE_SYNC;
     }
   
     if(CheckSumResult == true){
@@ -411,7 +411,7 @@ state2:
         } 
       }
     }else{
-      node.sync_quality = Node_Default_Quality + Node_NotSync;
+      node.sync_quality = NODE_DEFAULT_QUALITY + NODE_NOT_SYNC;
       node.angle_q6_checkbit = LIDAR_RESP_MEASUREMENT_CHECKBIT;
       node.distance_q2 = 0;
       package_Sample_Index = 0;
@@ -446,9 +446,9 @@ state2:
 
 
 //send data to serial
-result_t YDLidar::sendCommand(uint8_t cmd, const void * payload, size_t payloadsize) {
-  cmd_packet pkt_header;
-  cmd_packet * header = &pkt_header;
+result_t YDLidarX4::sendCommand(uint8_t cmd, const void * payload, size_t payloadsize) {
+  yd_cmd_packet pkt_header;
+  yd_cmd_packet * header = &pkt_header;
   uint8_t checksum = 0;
   if (payloadsize && payload) { 
     cmd |= LIDAR_CMDFLAG_HAS_PAYLOAD;
@@ -475,7 +475,7 @@ result_t YDLidar::sendCommand(uint8_t cmd, const void * payload, size_t payloads
 
 
 // wait response header
-result_t YDLidar::waitResponseHeader(lidar_ans_header * header, uint32_t timeout) {
+result_t YDLidarX4::waitResponseHeader(yd_lidar_ans_header * header, uint32_t timeout) {
   int  recvPos = 0;
   uint32_t startTs = millis();
   uint8_t  *headerBuffer = (uint8_t *)(header);
@@ -499,7 +499,7 @@ result_t YDLidar::waitResponseHeader(lidar_ans_header * header, uint32_t timeout
           }
           headerBuffer[recvPos++] = currentbyte;
 
-          if (recvPos == sizeof(lidar_ans_header)) {
+          if (recvPos == sizeof(yd_lidar_ans_header)) {
                 return RESULT_OK;
           }
   }

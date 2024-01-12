@@ -1,5 +1,4 @@
-#ifndef ROBOT_CONFIG
-#define ROBOT_CONFIG
+#pragma once
 
 // Motors config
 #define WHEEL_DIA (2*33.5e-3)      // meters
@@ -66,5 +65,3 @@
 void serial_callback(char c);
 void scan_callback(uint8_t quality, float angle_deg,
   float distance_mm, bool startBit);
-
-#endif  // ROBOT_CONFIG

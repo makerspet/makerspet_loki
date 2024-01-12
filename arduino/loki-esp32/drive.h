@@ -1,5 +1,4 @@
-#ifndef KAIA_DRIVE_H_
-#define KAIA_DRIVE_H_
+#pragma once
 
 #include <math.h>
 #include <Arduino.h>
@@ -122,5 +121,3 @@ class DriveController
 };
 
 extern DriveController drive;
-
-#endif

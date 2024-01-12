@@ -1,5 +1,4 @@
-#ifndef KAIA_AP_H_
-#define KAIA_AP_H_
+#pragma once
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -23,5 +22,3 @@ String getDestPort();
 //String readFile(fs::FS &fs, const char * path);
 //void writeFile(fs::FS &fs, const char * path, const char * message);
 void resetWiFiSettings();
-
-#endif

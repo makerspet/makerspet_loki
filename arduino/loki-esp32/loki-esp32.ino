@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <micro_ros_kaia.h>
 #include <HardwareSerial.h>
-#include "YDLidar.h"
+#include "yd_lib.h"
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
@@ -58,7 +58,7 @@ rcl_node_t node;
 rclc_parameter_server_t param_server;
 
 HardwareSerial LdSerial(2); // TX 17, RX 16
-YDLidar lds;
+YDLidarX4 lds;
 
 float joint_pos[JOINTS_LEN] = {0};
 float joint_vel[JOINTS_LEN] = {0};
@@ -798,7 +798,7 @@ int initLDS() {
   enableLdsMotor(false);
   while (LdSerial.read() >= 0) {};
   
-  device_info deviceinfo;
+  yd_device_info deviceinfo;
   if (lds.getDeviceInfo(deviceinfo, 100) != RESULT_OK) {
     Serial.println(F("lds.getDeviceInfo() error! Is YDLidar X4 connected to ESP32?"));
     return -1;
@@ -868,7 +868,7 @@ int initLDS() {
   Serial.println(F("Hz"));
   delay(100);
 
-  device_health healthinfo;
+  yd_device_health healthinfo;
   if (lds.getHealth(healthinfo, 100) != RESULT_OK) {
     Serial.println(F("lds.getHealth() error!"));
     return -1;

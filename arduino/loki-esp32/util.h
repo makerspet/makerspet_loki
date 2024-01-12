@@ -1,5 +1,4 @@
-#ifndef KAIA_ESP32_UTIL
-#define KAIA_ESP32_UTIL
+#pragma once
 
 #include "arduino.h"
 #include "robot_config.h"
@@ -21,5 +20,3 @@ void delayYield(unsigned long msec);
 String micro_ros_error_string(int err);
 
 String reset_reason_to_string(int reason, bool verbose=false);
-
-#endif  // KAIA_ESP32_UTIL
