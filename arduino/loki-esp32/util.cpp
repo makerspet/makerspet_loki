@@ -8,10 +8,10 @@ float absMin(float a, float b_abs) {
 }
 
 void enableLdsMotor(bool enable) {
-  int current_state = digitalRead(LDS_MOTOR_EN_PIN);
+  int current_state = digitalRead(LDS_EN_PIN);
   int new_state = enable ? HIGH : LOW;
   if (current_state != new_state) {
-    digitalWrite(LDS_MOTOR_EN_PIN, new_state);
+    digitalWrite(LDS_EN_PIN, new_state);
     Serial.print(F("LDS motor "));
     Serial.println(enable ? F("enabled") : F("disabled"));
   }

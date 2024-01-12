@@ -58,7 +58,7 @@ rcl_node_t node;
 rclc_parameter_server_t param_server;
 
 HardwareSerial LdSerial(2); // TX 17, RX 16
-YDLidar lds(scan_callback, serial_callback);
+YDLidar lds;
 
 float joint_pos[JOINTS_LEN] = {0};
 float joint_vel[JOINTS_LEN] = {0};
@@ -230,6 +230,8 @@ void delaySpin(unsigned long msec) {
 
 void setup() {
   Serial.begin(115200);
+  lds.setScanPointCallback(lds_scan_point_callback);
+  lds.setSerialCharCallback(lds_serial_callback);
 
   initSPIFFS();
 
@@ -237,7 +239,7 @@ void setup() {
   digitalWrite(LED_PIN, HIGH);  
 
   pinMode(LDS_MOTOR_PWM_PIN, INPUT);
-  pinMode(LDS_MOTOR_EN_PIN, OUTPUT);
+  pinMode(LDS_EN_PIN, OUTPUT);
   enableLdsMotor(false);
 
   if (!initWiFi(getSSID(), getPassw())) {
@@ -564,7 +566,7 @@ void calcOdometry(unsigned long step_time_us, float joint_pos_delta_right,
   telem_msg.odom_vel_yaw = d_yaw / d_time;
 }
 
-void scan_callback(uint8_t quality, float angle_deg,
+void lds_scan_point_callback(uint8_t quality, float angle_deg,
   float distance_mm, bool startBit) {
   return;
 
@@ -587,7 +589,7 @@ void scan_callback(uint8_t quality, float angle_deg,
   }
 }
 
-void serial_callback(char c) {
+void lds_serial_callback(char c) {
   if (telem_msg.lds.size >= telem_msg.lds.capacity)
     spinTelem(true);
   telem_msg.lds.data[telem_msg.lds.size++] = c;
@@ -789,7 +791,7 @@ int initLDS() {
   Serial.println(LdSerial.setRxBufferSize(1024)); // must be before .begin()
   Serial.print("LDS RX buffer size "); // default 128 hw + 256 sw
   lds.begin(LdSerial, LDS_SERIAL_BAUD);
-  ledcSetup(LDS_MOTOR_PWM_CHANNEL, LDS_PWM_FREQ 10000, LDS_PWM_BITS8);
+  ledcSetup(LDS_MOTOR_PWM_CHANNEL, LDS_PWM_FREQ, LDS_PWM_BITS);
   ledcAttachPin(LDS_MOTOR_PWM_PIN, LDS_MOTOR_PWM_CHANNEL);
 
   setLdsMotorSpeed(LDS_MOTOR_SPEED_DEFAULT);

@@ -8,17 +8,24 @@
  */
 #include "YDLidar.h"
 
-YDLidar::YDLidar(ScanPointCallback scan_callback,
-  SerialCharCallback serial_callback) : _bined_serialdev(NULL)
+YDLidar::YDLidar() : _bined_serialdev(NULL)
 {
-  this->scan_callback = scan_callback;
-  this->serial_callback = serial_callback;
+  scan_callback = NULL;
+  serial_callback = NULL;
   point.distance = 0;
   point.angle = 0;
   point.quality = 0;
   //point.sampleIndex = 0;
   //point.firstSampleAngle = 0;
   //point.intervalSampleAngle = 0;
+}
+
+void YDLidar::setScanPointCallback(ScanPointCallback scan_callback) {
+  this->scan_callback = scan_callback;
+}
+
+void YDLidar::setSerialCharCallback(SerialCharCallback serial_callback) {
+  this->serial_callback = serial_callback;  
 }
 
 

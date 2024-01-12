@@ -143,7 +143,9 @@ public:
         DEFAULT_TIMEOUT = 500,
     };
     //construct
-    YDLidar(ScanPointCallback scan_callback, SerialCharCallback serial_callback);
+    YDLidar();
+    void setScanPointCallback(ScanPointCallback scan_callback);
+    void setSerialCharCallback(SerialCharCallback serial_callback);
 
     //destructor
     ~YDLidar();

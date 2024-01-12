@@ -6,6 +6,15 @@
 #include <Servo.h>
 #include "robot_config.h"
 
+// TODO fan speed
+// TODO port touch
+// TODO servo speed
+//   servo torque? PWM tristate
+//   servo range
+//   servo auto-calibration?
+// TODO I2C fan, touch, servo
+// TODO INT touch
+
 Servo leftServo;
 Servo rightServo;
 Servo extServo;
