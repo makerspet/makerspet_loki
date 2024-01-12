@@ -244,8 +244,10 @@ state1:
       if (currentByte<0) {
         state = 1;
         return RESULT_NOT_READY;
-      } else
-        serial_callback((char)currentByte);
+      } else {
+        if (serial_callback)
+          serial_callback((char)currentByte);
+      }
 
       switch (recvPos) {
       case 0:
@@ -340,8 +342,10 @@ state2:
         if (currentByte<0){
           state = 2;
           return RESULT_NOT_READY;
-        } else
-          serial_callback((char)currentByte);
+        } else{
+          if (serial_callback)
+            serial_callback((char)currentByte);
+        }
         if((recvPos &1) == 1){
           Valu8Tou16 += (currentByte<<LIDAR_RESP_MEASUREMENT_ANGLE_SAMPLE_SHIFT);
           CheckSumCal ^= Valu8Tou16;
@@ -425,7 +429,8 @@ state2:
     //point.intervalSampleAngle = IntervalSampleAngle/64.0f;
     //point.angleCorrectionForDistance = AngleCorrectForDistance/64.0f;
 
-    scan_callback(point.quality, point.angle, point.distance, point.startBit);
+    if (scan_callback)
+      scan_callback(point.quality, point.angle, point.distance, point.startBit);
 
     // Dump finished?
     package_Sample_Index++;
