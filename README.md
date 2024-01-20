@@ -1,10 +1,16 @@
 # Maker's Pet Loki DIY home robot
 
-A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) software [platform](https://github.com/kaiaai/).
+A 200mm DIY 3D-printable pet robot compatible with [Kaia.ai](https://kaia.ai) software [platform](https://github.com/kaiaai/). 3D print, build, run and mod your own home pet robot! Please learn more at [Maker's Pet](https://makerspet.com), [REMAKE.AI](https://remake.ai) and join our [FB group](https://www.facebook.com/groups/243730868651472/).
 
-3D print, build, run and mod your own home pet robot! Please learn more at [Maker's Pet](https://makerspet.com).
+Please install these Arduino libraries (using Arduino Library Manager) before building this firmware:
+- [micro_ros_kaia](https://github.com/kaiaai/micro_ros_arduino_kaiaai)
+- [LDS](https://github.com/kaiaai/LDS/)
+- [PID_Timed](https://github.com/kaiaai/arduino_pid_timed)
+- ESPAsyncWebSrv including AsyncTCP, ESPAsyncTCP
 
-UPDATE: Loki is now compatible with LDS02RR (~$15 off AliExpress including shipping) from used Xiaomi 1st-generation robot vacuum cleaners. Please see more in our [FB group](https://www.facebook.com/groups/243730868651472/).
+Supported laser distance scan sensors:
+- YDLIDAR X4
+- LDS02RR from Xiaomi 1st gen vacuum cleaners (~$15 used off AliExpress including shipping)
 
 ![Loki cropped](https://github.com/makerspet/makerspet_loki/assets/143911662/9e3857b0-df87-4fda-9d94-bfc53fed399d)
 
