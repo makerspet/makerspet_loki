@@ -1,3 +1,17 @@
+// Copyright 2023-2024 REMAKE.AI, KAIA.AI, MAKERSPET.COM
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "drive.h"
 
 #define DEBUG true
@@ -77,7 +91,7 @@ void DriveController::setKd(unsigned char motorID, float k) {
 
 void DriveController::setProportionalMode(unsigned char motorID, bool onMeasurement) {
   if (motorID < MOTOR_COUNT)
-    pid[motorID]->SetTunings(kp[motorID], ki[motorID], kd[motorID], onMeasurement ? P_ON_M : P_ON_E);
+    pid[motorID]->SetTunings(kp[motorID], ki[motorID], kd[motorID], onMeasurement ? PID::P_ON_M : PID::P_ON_E);
 }
 
 void DriveController::initOnce(logFuncT logFunc) {
@@ -108,7 +122,7 @@ void DriveController::initOnce(logFuncT logFunc) {
     
     // https://playground.arduino.cc/Code/PIDLibrary/
     pid[motorID] = new PID(&measuredRPM[motorID], &pidPWM[motorID], &targetRPM[motorID],
-      kp[motorID], ki[motorID], kd[motorID], PID_UPDATE_PERIOD, PID_MODE, DIRECT);
+      kp[motorID], ki[motorID], kd[motorID], PID_UPDATE_PERIOD, PID_MODE, PID::DIRECT);
     pid[motorID]->SetOutputLimits(-1, 1);
 
     setMaxRPM(motorID, MOTOR_WHEEL_MAX_RPM);

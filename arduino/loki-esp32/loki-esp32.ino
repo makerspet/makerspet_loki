@@ -1,4 +1,4 @@
-// Copyright 2023 REMAKE AI
+// Copyright 2023-2024 REMAKE.AI, KAIA.AI, MAKERSPET.COM
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef ESP32
+  #error This code runs on ESP32
+#endif
+
 #include "robot_config.h"
 #include "util.h"
 #include <WiFi.h>
 #include <stdio.h>
 #include <micro_ros_kaia.h>
 #include <HardwareSerial.h>
-#include "yd_lib.h"
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
@@ -31,6 +34,14 @@
 #include <rclc_parameter/rclc_parameter.h>
 #include "drive.h"
 #include "ap.h"
+
+#if defined LDS_YDLIDAR_X4
+  #include "LDS_YDLIDAR_X4.h"
+  LDS_YDLIDAR_X4 lds;
+#elif defined LDS_LDS02RR
+  #include "LDS_LDS02RR.h"
+  LDS_LDSRR02 lds;
+#endif
 
 #if !defined(IS_MICRO_ROS_KAIA_MIN_VERSION) || !IS_MICRO_ROS_KAIA_MIN_VERSION(2,0,7,3)
 #error "Please upgrade micro_ros_kaia library version"
@@ -54,11 +65,9 @@ rclc_support_t support;
 rcl_allocator_t allocator;
 rclc_executor_t executor;
 rcl_node_t node;
-
 rclc_parameter_server_t param_server;
 
 HardwareSerial LdSerial(2); // TX 17, RX 16
-YDLidarX4 lds;
 
 float joint_pos[JOINTS_LEN] = {0};
 float joint_vel[JOINTS_LEN] = {0};
@@ -83,6 +92,14 @@ bool ramp_enabled = true;
 unsigned long stat_sum_spin_telem_period_us = 0;
 unsigned long stat_max_spin_telem_period_us = 0;
 #endif
+
+size_t lds_serial_write_callback(const uint8_t * buffer, size_t length) {
+  return LdSerial.write(buffer, length);
+}
+
+int lds_serial_read_callback() {
+  return LdSerial.read();
+}
 
 void twist_sub_callback(const void *msgin) {
   const geometry_msgs__msg__Twist * msg = (const geometry_msgs__msg__Twist *)msgin;
@@ -230,20 +247,17 @@ void delaySpin(unsigned long msec) {
 
 void setup() {
   Serial.begin(115200);
-  lds.setScanPointCallback(lds_scan_point_callback);
-  lds.setSerialCharCallback(lds_serial_callback);
 
-  initSPIFFS();
+  pinMode(CONFIG::LED_PIN, OUTPUT);
+  digitalWrite(CONFIG::LED_PIN, HIGH);  
 
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);  
+  setupLDS();
 
-  pinMode(LDS_MOTOR_PWM_PIN, INPUT);
-  pinMode(LDS_EN_PIN, OUTPUT);
-  enableLdsMotor(false);
+  if (!initSPIFFS())
+    blink_error_code(ERR_SPIFFS_INIT);
 
   if (!initWiFi(getSSID(), getPassw())) {
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(CONFIG::LED_PIN, HIGH);
     ObtainWiFiCreds(spinResetSettings, UROS_ROBOT_MODEL);
     return;
   }
@@ -255,9 +269,9 @@ void setup() {
   initRos();
   logMsgInfo((char*)"Micro-ROS initialized");
   
-  if (initLDS() != 0)
-    blink_error_code(ERR_LDS_INIT);
-    //error_loop(ERR_LDS_INIT);
+  if (startLDS() != LDS::RESULT_OK)
+    blink_error_code(ERR_LDS_START);
+    //error_loop(ERR_LDS_START);
   
   drive.initOnce(logInfo);
   drive.resetEncoders();
@@ -376,8 +390,7 @@ static inline void initRos() {
   resetTelemMsg();
 }
 
-bool on_param_changed(const Parameter * old_param, const Parameter * new_param, void * context)
-{
+bool on_param_changed(const Parameter * old_param, const Parameter * new_param, void * context) {
   (void) context;
 
   if (old_param == NULL && new_param == NULL) {
@@ -409,8 +422,8 @@ bool on_param_changed(const Parameter * old_param, const Parameter * new_param, 
       Serial.println(new_param->value.double_value);
 
       if (strcmp(old_param->name.data, UROS_PARAM_LDS_MOTOR_SPEED) == 0) {
-        int16_t speed_int = round((float)(new_param->value.double_value) * 255);
-        setLdsMotorSpeed(speed_int);
+        //int16_t speed_int = round((float)(new_param->value.double_value) * 255);
+//        lds.setScanTargetFreqHz(new_param->value.double_value);
       }
       break;
     default:
@@ -450,15 +463,15 @@ static inline bool initWiFi(String ssid, String passw) {
       return false;
     }
 
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(CONFIG::LED_PIN, HIGH);
     delay(250);
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(CONFIG::LED_PIN, LOW);
     Serial.print('.'); // Don't use F('.'), it crashes code!!
     delay(250);
     spinResetSettings();
   }
 
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(CONFIG::LED_PIN, LOW);
   Serial.println(F(" connected"));
   Serial.print(F("IP "));
   Serial.println(WiFi.localIP());
@@ -476,7 +489,7 @@ void spinTelem(bool force_pub) {
   publishTelem(step_time_us);
   telem_prev_pub_time_us = time_now_us;
 
-  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  digitalWrite(CONFIG::LED_PIN, !digitalRead(CONFIG::LED_PIN));
   //if (++telem_pub_count % 5 == 0) {
     //Serial.print("RPM L ");
     //Serial.print(drive.getCurrentRPM(MOTOR_LEFT));
@@ -495,15 +508,22 @@ void spinTelem(bool force_pub) {
     Serial.print(stat_sum_spin_telem_period_us / (1000*SPIN_TELEM_STATS));
     Serial.print(" max ");
     Serial.print(stat_max_spin_telem_period_us / 1000);
-    Serial.println("ms");
+    Serial.print("ms");
+
+    float rpm = lds.getCurrentScanFreqHz();
+    if (rpm >= 0) {
+      Serial.print(", LDS RPM ");
+      Serial.print(rpm);
+    }
+    Serial.println();
+
     stat_sum_spin_telem_period_us = 0;
     stat_max_spin_telem_period_us = 0;
   }
   #endif
 }
 
-void publishTelem(unsigned long step_time_us)
-{
+void publishTelem(unsigned long step_time_us) {
   struct timespec tv = {0};
   clock_gettime(CLOCK_REALTIME, &tv);
   telem_msg.stamp.sec = tv.tv_sec;
@@ -566,53 +586,73 @@ void calcOdometry(unsigned long step_time_us, float joint_pos_delta_right,
   telem_msg.odom_vel_yaw = d_yaw / d_time;
 }
 
-void lds_scan_point_callback(uint8_t quality, float angle_deg,
-  float distance_mm, bool startBit) {
+void lds_scan_point_callback(float angle_deg, float distance_mm, float quality,
+  bool scan_completed) {
   return;
 
   static int i=0;
-  static int j=0;
 
-  if (startBit) {
-    i = 0;
-    Serial.print('s');
-    if (++j % 60 == 0)
+  if ((i++ % 20 == 0) || scan_completed) {
+    Serial.print(i);
+    Serial.print(' ');
+    Serial.print(distance_mm);
+    Serial.print(' ');
+    Serial.print(angle_deg);
+    if (scan_completed)
+      Serial.println('*');
+    else
       Serial.println();
-  } else {
-    if (i++ % 20 == 0) {
-      Serial.print(i);
-      Serial.print(' ');
-      Serial.print(distance_mm);
-      Serial.print(' ');
-      Serial.println(angle_deg);
-    }
   }
 }
 
-void lds_serial_callback(char c) {
-  if (telem_msg.lds.size >= telem_msg.lds.capacity)
-    spinTelem(true);
-  telem_msg.lds.data[telem_msg.lds.size++] = c;
+void lds_packet_callback(uint8_t * packet, uint16_t packet_length, bool scan_completed) {
+
+  bool packet_sent = false;
+  while (packet_length-- > 0) {
+    if (telem_msg.lds.size >= telem_msg.lds.capacity) {
+      spinTelem(true);
+      packet_sent = true;
+    }
+    telem_msg.lds.data[telem_msg.lds.size++] = *packet;
+    packet++;
+  }
+
+  if (scan_completed && !packet_sent)
+    spinTelem(true); // Opional: reduce lag a little
 }
 
-void spinLDS() {
-  if (!LdSerial.available())
-    return;
+void lds_motor_pin_callback(float value, LDS::lds_pin_t lds_pin) {
+  /*
+  Serial.print("LDS pin ");
+  Serial.print(lds.pinIDToString(lds_pin));
+  Serial.print(" set ");
+  if (lds_pin > 0)
+    Serial.print(value); // PWM value
+  else
+    Serial.print(lds.pinStateToString((LDS::lds_pin_state_t)value));
+  Serial.print(", RPM ");
+  Serial.println(lds.getCurrentScanFreqHz());
+  */
+  
+  int pin = (lds_pin == LDS::LDS_MOTOR_EN_PIN) ?
+    CONFIG::LDS_MOTOR_EN_PIN : CONFIG::LDS_MOTOR_PWM_PIN;
 
-  switch(lds.waitScanDot()) {
-    case RESULT_OK:
-      break;
-    case RESULT_CRC_ERROR:
-      Serial.println("CRC error");
-      break;
-    case RESULT_NOT_READY:
-//      Serial.print(".");
-      break;
-    case RESULT_FAIL:
-      Serial.println("FAIL");
-      break;
-    default:
-      Serial.println("Unexpected result code");
+  if (value <= LDS::DIR_INPUT) {
+    // Configure pin direction
+    if (value == LDS::DIR_OUTPUT_PWM) {
+      pinMode(pin, OUTPUT);
+      ledcSetup(LDS_MOTOR_PWM_CHANNEL, LDS_MOTOR_PWM_FREQ, LDS_MOTOR_PWM_BITS);
+      ledcAttachPin(pin, LDS_MOTOR_PWM_CHANNEL);
+    } else
+      pinMode(pin, (value == LDS::DIR_INPUT) ? INPUT : OUTPUT);
+    return;
+  }
+
+  if (value < LDS::VALUE_PWM) // set constant output
+    digitalWrite(pin, (value == LDS::VALUE_HIGH) ? HIGH : LOW);
+  else { // set PWM duty cycle
+    int pwm_value = ((1<<LDS_MOTOR_PWM_BITS)-1)*value;
+    ledcWrite(LDS_MOTOR_PWM_CHANNEL, pwm_value);
   }
 }
 
@@ -623,7 +663,7 @@ void spinPing() {
   if (step_time_us >= ping_pub_period_us) {
     // timeout_ms, attempts
     rmw_ret_t rc = rmw_uros_ping_agent(1, 1);
-    //int battery_level = analogRead(BAT_ADC_PIN);
+    //int battery_level = analogRead(CONFIG::BAT_ADC_PIN);
     //Serial.print("Battery level ");
     //Serial.println(battery_level);
     ping_prev_pub_time_us = time_now_us;
@@ -633,13 +673,13 @@ void spinPing() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    enableLdsMotor(false);
+    lds.stop();
     drive.setRPM(MOTOR_RIGHT, 0);
     drive.setRPM(MOTOR_LEFT, 0);
     return;
   }
 
-  spinLDS();
+  lds.loop();
   
   // Process micro-ROS callbacks
   RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1)), ERR_UROS_SPIN);
@@ -671,7 +711,7 @@ void spinResetSettings() {
   if (step_time_ms >= reset_settings_check_period_ms) {
 
     bool button_pressed = !digitalRead(0);
-    if (button_pressed && button_pressed_seconds > RESET_SETTINGS_HOLD_SEC)
+    if (button_pressed && button_pressed_seconds > CONFIG::RESET_SETTINGS_HOLD_SEC)
       resetSettings();
 
     button_pressed_seconds = button_pressed ? button_pressed_seconds + 1 : 0;
@@ -679,8 +719,7 @@ void spinResetSettings() {
   }
 }
 
-void resetTelemMsg()
-{
+void resetTelemMsg() {
   telem_msg.seq = 0;
   telem_msg.odom_pos_x = 0;
   telem_msg.odom_pos_y = 0;
@@ -787,112 +826,59 @@ void logMsg(char* msg, uint8_t severity_level) {
   Serial.println(msg);
 }
 
-int initLDS() {
-  Serial.println(LdSerial.setRxBufferSize(1024)); // must be before .begin()
+void lds_info_callback(LDS::info_t code, String info) {
+  Serial.print("LDS info ");
+  Serial.print(lds.infoCodeToString(code));
+  Serial.print(": ");
+  Serial.println(info);
+}
+
+void lds_error_callback(LDS::result_t code, String aux_info) {
+  if (code != LDS::ERROR_NOT_READY) {
+    Serial.print("LDS error ");
+    Serial.print(lds.resultCodeToString(code));
+    Serial.print(": ");
+    Serial.println(aux_info);
+  }
+}
+
+void setupLDS() {
+  lds.setScanPointCallback(lds_scan_point_callback);
+  lds.setPacketCallback(lds_packet_callback);
+  lds.setSerialWriteCallback(lds_serial_write_callback);
+  lds.setSerialReadCallback(lds_serial_read_callback);
+  lds.setMotorPinCallback(lds_motor_pin_callback);
+  lds.setInfoCallback(lds_info_callback);
+  lds.setErrorCallback(lds_error_callback);
+
   Serial.print("LDS RX buffer size "); // default 128 hw + 256 sw
-  lds.begin(LdSerial, LDS_SERIAL_BAUD);
-  ledcSetup(LDS_MOTOR_PWM_CHANNEL, LDS_PWM_FREQ, LDS_PWM_BITS);
-  ledcAttachPin(LDS_MOTOR_PWM_PIN, LDS_MOTOR_PWM_CHANNEL);
+  Serial.print(LdSerial.setRxBufferSize(1024)); // must be before .begin()
+  uint32_t baud_rate = lds.getSerialBaudRate();
+  Serial.print(", baud rate ");
+  Serial.println(baud_rate);
 
-  setLdsMotorSpeed(LDS_MOTOR_SPEED_DEFAULT);
-  enableLdsMotor(false);
-  while (LdSerial.read() >= 0) {};
-  
-  yd_device_info deviceinfo;
-  if (lds.getDeviceInfo(deviceinfo, 100) != RESULT_OK) {
-    Serial.println(F("lds.getDeviceInfo() error! Is YDLidar X4 connected to ESP32?"));
-    return -1;
-  }
+  LdSerial.begin(baud_rate);
+  while (LdSerial.read() >= 0);  
 
-  int _samp_rate = 4;
-  String model;
-  float freq = 7.0f;
-  switch (deviceinfo.model) {
-    case 1:
-      model = "F4";
-      _samp_rate = 4;
-      freq = 7.0;
-      break;
-    case 4:
-      model = "S4";
-      _samp_rate = 4;
-      freq = 7.0;
-      break;
-    case 5:
-      model = "G4";
-      _samp_rate = 9;
-      freq = 7.0;
-      break;
-    case 6:
-      model = "X4";
-      _samp_rate = 5;
-      freq = 7.0;
-      break;
-    default:
-      model = "Unknown";
-  }
+  lds.stop();
+}
 
-  uint16_t maxv = (uint16_t)(deviceinfo.firmware_version >> 8);
-  uint16_t midv = (uint16_t)(deviceinfo.firmware_version & 0xff) / 10;
-  uint16_t minv = (uint16_t)(deviceinfo.firmware_version & 0xff) % 10;
-  if (midv == 0) {
-    midv = minv;
-    minv = 0;
-  }
+LDS::result_t startLDS() {  
+  LDS::result_t result = lds.start();
+  Serial.print("startLDS() result: ");
+  Serial.println(lds.resultCodeToString(result));
 
-  Serial.print(F("Firmware version:"));
-  Serial.print(maxv, DEC);
-  Serial.print(F("."));
-  Serial.print(midv, DEC);
-  Serial.print(F("."));
-  Serial.println(minv, DEC);
+  if (result < 0)
+    Serial.println("WARNING: is LDS connected to ESP32?");
 
-  Serial.print(F("Hardware version:"));
-  Serial.println((uint16_t)deviceinfo.hardware_version, DEC);
-
-  Serial.print(F("Model:"));
-  Serial.println(model);
-
-  Serial.print(F("Serial:"));
-  for (int i = 0; i < 16; i++) {
-    Serial.print(deviceinfo.serialnum[i] & 0xff, DEC);
-  }
-  Serial.println("");
-
-  Serial.print(F("Sampling Rate:"));
-  Serial.print(_samp_rate, DEC);
-  Serial.println(F("K"));
-
-  Serial.print(F("Scan Frequency:"));
-  Serial.print(freq, DEC);
-  Serial.println(F("Hz"));
-  delay(100);
-
-  yd_device_health healthinfo;
-  if (lds.getHealth(healthinfo, 100) != RESULT_OK) {
-    Serial.println(F("lds.getHealth() error!"));
-    return -1;
-  } else {
-    Serial.print(F("YDLidar X4 running correctly! The health status: "));
-    Serial.println(healthinfo.status == 0 ? F("OK") : F("bad"));
-    if (lds.startScan() != RESULT_OK) {
-      Serial.println(F("lds.startScan() error!"));
-      return -1;
-    } else {
-//      isScanning = true;
-      enableLdsMotor(true);
-      Serial.println(F("lds.startScan() successful"));
-      delay(1000);
-    }
-  }
-  return 0;
+  return result;
 }
 
 void blink_error_code(int n_blinks) {
   unsigned int i = 0;
   while(i++ < ERR_REBOOT_BLINK_CYCLES){
     blink(LONG_BLINK_MS, 1);
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(CONFIG::LED_PIN, LOW);
     delay(SHORT_BLINK_PAUSE_MS);
     blink(SHORT_BLINK_MS, n_blinks);
     delay(LONG_BLINK_PAUSE_MS);
@@ -904,7 +890,7 @@ void blink_error_code(int n_blinks) {
 }
 
 void error_loop(int n_blinks){
-  enableLdsMotor(false);
+  lds.stop();
 
   char buffer[40];
   sprintf(buffer, "Error code %d", n_blinks);  

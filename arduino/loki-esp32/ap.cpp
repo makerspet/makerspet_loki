@@ -1,3 +1,20 @@
+// Based on:
+//   TODO Arduino library
+//
+// Copyright 2023-2024 REMAKE.AI, KAIA.AI, MAKERSPET.COM
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "ap.h"
 
 //Variables to save values from HTML form
@@ -14,7 +31,7 @@ const char* destPortPath = "/dest_port.txt";
 
 // Read File from SPIFFS
 String readFile(fs::FS &fs, const char * path) {
-  Serial.printf("Reading file: %s\r\n", path);
+  //Serial.printf("Reading file: %s\r\n", path);
 
   File file = fs.open(path);
   if(!file || file.isDirectory()){
@@ -31,12 +48,17 @@ String readFile(fs::FS &fs, const char * path) {
 }
 
 // Initialize SPIFFS
-void initSPIFFS() {
+bool initSPIFFS() {
   if (!SPIFFS.begin(true)) {
     Serial.println("Error mounting SPIFFS");
-    return;
+    return false;
   }
   Serial.println("SPIFFS mounted successfully");
+
+  if (!SPIFFS.exists("/index.html")) {
+    Serial.println("Sketch data not found. Have you uploaded sketch data?");
+    return false;
+  }
 
   // Load values saved in SPIFFS
   ssid = readFile(SPIFFS, ssidPath);
@@ -53,21 +75,23 @@ void initSPIFFS() {
   Serial.print("' dest_port='");
   Serial.print(dest_port);
   Serial.println("'");
+
+  return true;
 }
 
 // Write file to SPIFFS
 void writeFile(fs::FS &fs, const char * path, const char * message){
-  Serial.printf("Writing file: %s\r\n", path);
+  Serial.printf("Writing file: %s\r", path);
 
   File file = fs.open(path, FILE_WRITE);
   if(!file){
-    Serial.println("- failed to open file for writing");
+    Serial.println(" - failed to open file for writing");
     return;
   }
   if(file.print(message)){
-    Serial.println("- file written");
+    Serial.println(" - file written");
   } else {
-    Serial.println("- frite failed");
+    Serial.println(" - frite failed");
   }
 }
 

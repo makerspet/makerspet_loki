@@ -1,3 +1,17 @@
+// Copyright 2023-2024 REMAKE.AI, KAIA.AI, MAKERSPET.COM
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "util.h"
 
 float absMin(float a, float b_abs) {
@@ -7,24 +21,14 @@ float absMin(float a, float b_abs) {
   return a >= 0 ? min_abs : -min_abs;
 }
 
-void enableLdsMotor(bool enable) {
-  int current_state = digitalRead(LDS_EN_PIN);
-  int new_state = enable ? HIGH : LOW;
-  if (current_state != new_state) {
-    digitalWrite(LDS_EN_PIN, new_state);
-    Serial.print(F("LDS motor "));
-    Serial.println(enable ? F("enabled") : F("disabled"));
-  }
-}
-
 void blink(unsigned int delay_ms, unsigned int count) {
   for (unsigned int i = 0; i < count; i++) {
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(CONFIG::LED_PIN, LOW);
     delay(delay_ms);
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(CONFIG::LED_PIN, HIGH);
     delay(delay_ms);
   }
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(CONFIG::LED_PIN, LOW);
 }
 
 void printCurrentTime() {
@@ -47,19 +51,19 @@ void printCurrentTime() {
   //Serial.println(strftime_buf);
 }
 
-void setLdsMotorSpeed(int16_t speed) {
-  Serial.print(F("LDS motor speed "));
-  if (speed < 0) {
-    pinMode(LDS_MOTOR_PWM_PIN, INPUT);
-    Serial.println(F("default"));
-    return;
-  }
-
-  pinMode(LDS_MOTOR_PWM_PIN, OUTPUT);
-  speed = speed > 255 ? 255 : speed;
-  ledcWrite(LDS_MOTOR_PWM_CHANNEL, speed);
-  Serial.println(speed);
-}
+//void setLdsMotorSpeed(int16_t speed) {
+//  Serial.print(F("LDS motor speed "));
+//  if (speed < 0) {
+//    pinMode(LDS_MOTOR_PWM_PIN, INPUT);
+//    Serial.println(F("default"));
+//    return;
+//  }
+//
+//  pinMode(LDS_MOTOR_PWM_PIN, OUTPUT);
+//  speed = speed > 255 ? 255 : speed;
+//  ledcWrite(LDS_MOTOR_PWM_CHANNEL, speed);
+//  Serial.println(speed);
+//}
 
 void twistToWheelSpeeds(float speed_lin_x, float speed_ang_z,
   float *speed_right, float *speed_left)
