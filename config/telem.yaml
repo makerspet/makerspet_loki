@@ -2,27 +2,36 @@ kaiaai_telemetry_node:
   ros__parameters:
 
     laser_scan:
-        buf_len: 561
-        # Radian
-        angle_min: 0.0
-        angle_max: 6.283185307179586476925286766559
-        range_min: 0.15
-        range_max: 12.0
-        topic_name_pub: "scan"
-        frame_id: "base_scan"
+      mask_radius_meters: 0.1
+      topic_name_pub: "scan"
+      frame_id: "base_scan"
+#      lds_model: "LDS02RR"
+#      lds_model: "YDLIDAR-X4"
+
+    laser_sensor:
+      model:            ['YDLIDAR-X4', 'LDS02RR']
+      angle_offset_deg: [         0.0,    -180.0]
+      pub_scan_size:    [         561,       360]
+      range_min_meters: [        0.15,      0.15]
+      range_max_meters: [        12.0,       6.0]
+      # 'neato-xv-11', 'lds02rr', 'ydlidar-x2', 'rplidar-a1m8', 'hls-lfcd2-lds-01', 'ydlidar-x3-pro'
+      #           0.0,    -180.0,          0.0,            0.0,                0.0,              0.0
+      #           360,       360,          561,            360,                360,              360]
+      #          0.15,      0.15,          0.1,           0.15,               0.12,             0.12]
+      #           6.0,       6.0,          8.0,           12.0,                3.5,             12.0]
 
     telemetry:
-        topic_name_sub: "telemetry"
+      topic_name_sub: "telemetry"
 
     tf:
-        frame_id: "odom"
-        child_frame_id: "base_footprint"
+      frame_id: "odom"
+      child_frame_id: "base_footprint"
 
     joints:
-        topic_name_pub: "joint_states"
-        wheel:
-            right: "wheel_right_joint"
-            left: "wheel_left_joint"
+      topic_name_pub: "joint_states"
+      wheel:
+        right: "wheel_right_joint"
+        left: "wheel_left_joint"
 
     odometry:
       frame_id: "odom"
