@@ -1,5 +1,15 @@
 # Release notes
 
+1/21/2024
+- updated to match PID_Timed v1.1.0 library
+  - PID_Timed v1.1.0 replaced constant `#define` with class constants to fix namespace collisions
+- added [LDS](https://github.com/kaiaai/LDS) library as dependency
+  - refactoried and moved YDLIDAR X4 into LDS library
+  - added support for Xiaomi 1st gen LDS02RR laser distance scan sensor
+- started moving `#define` constants into CONFIG class to clean up namespace
+- added motor choices
+- miscellaneous cleanup
+
 12/02/2023
 - BREAKING ESP32 pinout assignment change to support the newly ESP32 breakout board
   - the new ESP32 breakout board works
