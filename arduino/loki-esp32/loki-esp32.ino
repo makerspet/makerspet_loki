@@ -35,12 +35,12 @@
 #include "drive.h"
 #include "ap.h"
 
-#if defined LDS_YDLIDAR_X4
+#if defined LDS_YDLIDAR_X4_
   #include "LDS_YDLIDAR_X4.h"
   LDS_YDLIDAR_X4 lds;
-#elif defined LDS_LDS02RR
+#elif defined LDS_LDS02RR_
   #include "LDS_LDS02RR.h"
-  LDS_LDSRR02 lds;
+  LDS_LDS02RR lds;
 #endif
 
 #if !defined(IS_MICRO_ROS_KAIA_MIN_VERSION) || !IS_MICRO_ROS_KAIA_MIN_VERSION(2,0,7,3)
