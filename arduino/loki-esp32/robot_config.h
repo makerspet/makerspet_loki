@@ -16,7 +16,8 @@
 
 // Choose your LDS
 //#define LDS_YDLIDAR_X4_
-#define LDS_LDS02RR_
+#define LDS_YDLIDAR_X4_
+//#define LDS_LDS02RR_
 
 // Motors config
 #define WHEEL_DIA (2*33.5e-3)      // meters
