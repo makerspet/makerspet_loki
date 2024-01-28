@@ -15,6 +15,7 @@
 #pragma once
 
 // Choose your LDS
+//#define LDS_YDLIDAR_X4_
 #define LDS_YDLIDAR_X4_
 //#define LDS_LDS02RR_
 
