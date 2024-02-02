@@ -9,16 +9,18 @@ kaiaai_telemetry_node:
 #      lds_model: "YDLIDAR-X4"
 
     laser_sensor:
-      model:            ['YDLIDAR-X4', 'LDS02RR', 'YDLIDAR-X2', 'YDLIDAR-X3-PRO']
-      angle_offset_deg: [         0.0,    -180.0,          0.0,              0.0]
-      pub_scan_size:    [         720,       360,          720,              720]
-      range_min_meters: [        0.15,      0.15,          0.1,             0.12]
-      range_max_meters: [        12.0,       6.0,          8.0,              8.0]
-      # 'neato-xv-11', 'rplidar-a1m8', 'hls-lfcd2-lds-01'
-      #           0.0,            0.0,                0.0
-      #           360,            360,                360
-      #          0.15,           0.15,               0.12
-      #           6.0,           12.0,                3.5
+      model:            ['YDLIDAR-X4', 'LDS02RR', 'YDLIDAR-X2', 'YDLIDAR-X3-PRO', 'NEATO-XV11']
+      angle_offset_deg: [         0.0,    -180.0,          0.0,              0.0,          0.0]
+      pub_scan_size:    [         720,       360,          720,              720,          360]
+      clockwise:        [        true,      true,         true,             true,        false]
+      range_min_meters: [        0.15,      0.15,          0.1,             0.12,         0.15]
+      range_max_meters: [        12.0,       6.0,          8.0,              8.0,          6.0]
+      # 'DELTA-2G', 'RPLIDAR-A1', 'HLS-LFCD2', 'LDS01RR'
+      #        0.0,          0.0,         0.0,       0.0
+      #        360,          360,         360,       360
+      #       true,         true,        true,      true
+      #       0.15,         0.15,        0.12,      0.15
+      #        5.0,         12.0,         3.5,       9.0
 
     telemetry:
       topic_name_sub: "telemetry"
