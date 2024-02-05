@@ -9,8 +9,10 @@ Please install these Arduino libraries (using Arduino Library Manager) before bu
 - ESPAsyncWebSrv including AsyncTCP, ESPAsyncTCP
 
 Supported laser distance scan sensors:
-- YDLIDAR X4
+- YDLIDAR X4, X3, X3-PRO, X2/X2L
+- Neato XV11
 - LDS02RR from Xiaomi 1st gen vacuum cleaners (~$15 used off AliExpress including shipping)
+- RPLIDAR A1
 
 ![Loki cropped](https://github.com/makerspet/makerspet_loki/assets/143911662/9e3857b0-df87-4fda-9d94-bfc53fed399d)
 
