@@ -49,12 +49,12 @@ Supported laser distance scan sensors:
 - Arduino ESP32 micro-controller
 
 ## Instructions
-- 3D printing [STL](https://github.com/makerspet/makerspet_loki/tree/main/stl), [3MF](https://github.com/makerspet/makerspet_loki/tree/main/3mf) and instructions (TBD)
-- Arduino ESP32 [firmware](https://github.com/makerspet/makerspet_loki/tree/main/arduino)
+- 3D printing [STL](https://github.com/makerspet/3d_models/tree/main/loki_200mm/stl), [3MF](https://github.com/makerspet/3d_models/tree/main/loki_200mm/3mf)
+- Arduino ESP32 [firmware](https://github.com/kaiaai/firmware)
 - PC end user and developer [setup](https://github.com/kaiaai/docker)
-- KiCad [schematic, PCB](https://github.com/makerspet/makerspet_loki/tree/main/kicad)
-- Software setup, configuration [instructions](https://github.com/makerspet/makerspet_loki/tree/main/config)
-- Fusion 360 3D CAD [design files](https://github.com/makerspet/makerspet_loki/tree/main/fusion360)
+- KiCad [schematic, PCB](https://github.com/makerspet/pcb)
+- Software setup, configuration [instructions](https://www.youtube.com/playlist?list=PLOSXKDW70aR8SA16wTB0ou9ClKhv7micy)
+- Fusion 360 3D CAD [design files](https://github.com/makerspet/3d_models/tree/main/loki_200mm/fusion360)
 - ROS2 software mod [instructions](https://github.com/makerspet/makerspet_loki/tree/main/urdf)
 
 ## Open-source design
