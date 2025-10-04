@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+    <!-- https://en.wikipedia.org/wiki/List_of_moments_of_inertia -->
+
+  <xacro:macro name="solid_box_inertia" params="m x y z">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/12}" ixy="0" ixz="0" iyy="${m*(x*x+z*z)/12}" iyz="0" izz="${m*(x*x+y*y)/12}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_cylinder_inertia" params="m r h">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <mass value="${m}"/>
+      <inertia ixx="${m*(3*r*r+h*h)/12}" ixy="0" ixz="0" iyy="${m*(3*r*r+h*h)/12}" iyz="0" izz="${m*r*r/2}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="hollow_cylinder_inertia" params="m ri ro h">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <mass value="${m}"/>
+      <inertia ixx="${m*(3*(ri*ri+ro*ro)+h*h)/12}" ixy="0" ixz="0" iyy="${m*(3*(ri*ri+ro*ro) + h*h)/12}" iyz="0" izz="${m*(ri*ri+ro*ro)/2}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="thin_cylindrical_shell_inertia" params="m r h">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <mass value="${m}"/>
+      <inertia ixx="${m*(6*r*r+h*h)/12}" ixy="0" ixz="0" iyy="${m*(6*r*r+h*h)/12}" iyz="0" izz="${m*r*r}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_sphere_inertia" params="m r">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${2*m*r*r/5}" ixy="0" ixz="0" iyy="${2*m*r*r/5}" iyz="0" izz="${2*m*r*r/5}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="thin_spherical_shell_inertia" params="m r">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${2*m*r*r/3}" ixy="0" ixz="0" iyy="${2*m*r*r/3}" iyz="0" izz="${2*m*r*r/3}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_hemisphere_inertia" params="m r">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${83*m*r*r/320}" ixy="0" ixz="0" iyy="${83*m*r*r/320}" iyz="0" izz="${2*m*r*r/5}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_ellipsoid_inertia" params="m x y z">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/5}" ixy="0" ixz="0" iyy="${m*(x*x+z*z)/5}" iyz="0" izz="${m*(x*x+y*y)/5}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="solid_semi_ellipsoid_inertia" params="m x y z">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/10}" ixy="0" ixz="0" iyy="${m*(x*x+z*z)/10}" iyz="0" izz="${m*(x*x+y*y)/10}"/>
+    </inertial>
+  </xacro:macro>
+
+</robot>

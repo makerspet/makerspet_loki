@@ -1,1 +1,0 @@
-Please find firmware files here https://github.com/kaiaai/firmware.
